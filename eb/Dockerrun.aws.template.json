@@ -1,0 +1,14 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image": {
+      "Name": "registry.gitlab.com/ems-test-harness/ems-reports-service:{{tag}}",
+      "Update": "true"
+    },
+    "Ports": [
+      {
+        "ContainerPort": "8086",
+        "HostPort": "8086"
+      }
+    ]
+  }
+  
