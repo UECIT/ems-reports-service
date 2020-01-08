@@ -1,4 +1,4 @@
-package uk.nhs.cdss.config;
+package uk.nhs.cdss.reports.config;
 
 import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.Read;

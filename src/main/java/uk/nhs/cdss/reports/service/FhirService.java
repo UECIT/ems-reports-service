@@ -1,6 +1,7 @@
-package uk.nhs.cdss.service;
+package uk.nhs.cdss.reports.service;
 
 import ca.uhn.fhir.rest.param.ReferenceParam;
+import java.util.Calendar;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.dstu3.model.Composition;
@@ -9,8 +10,8 @@ import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.springframework.stereotype.Service;
-import uk.nhs.cdss.config.FhirRestfulClient;
-import uk.nhs.cdss.model.EncounterReportInput;
+import uk.nhs.cdss.reports.config.FhirRestfulClient;
+import uk.nhs.cdss.reports.model.EncounterReportInput;
 
 @Service
 @AllArgsConstructor
@@ -33,6 +34,7 @@ public class FhirService {
         .getCompositionsByEncounter(encounterReference);
 
     return EncounterReportInput.builder()
+        .dateOfPreparation(Calendar.getInstance())
         .composition(compositions)
         .encounter(encounter)
         .patient(patient)
