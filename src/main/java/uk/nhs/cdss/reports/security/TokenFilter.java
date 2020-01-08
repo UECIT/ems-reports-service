@@ -1,4 +1,4 @@
-package uk.nhs.cdss.security;
+package uk.nhs.cdss.reports.security;
 
 import java.io.IOException;
 import java.util.Collections;

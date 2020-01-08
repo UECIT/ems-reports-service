@@ -1,4 +1,4 @@
-package uk.nhs.cdss.config;
+package uk.nhs.cdss.reports.config;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;

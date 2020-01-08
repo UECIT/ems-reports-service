@@ -1,5 +1,6 @@
-package uk.nhs.cdss.model;
+package uk.nhs.cdss.reports.model;
 
+import java.util.Calendar;
 import java.util.List;
 import lombok.Builder;
 import lombok.Value;
@@ -12,6 +13,7 @@ import org.hl7.fhir.dstu3.model.ReferralRequest;
 @Builder
 public class EncounterReportInput {
 
+  Calendar dateOfPreparation;
   List<ReferralRequest> referralRequest;
   Encounter encounter;
   List<Composition> composition;
