@@ -1,11 +1,11 @@
 <ns:CDS-XMLInterchange SchemaVersion="6-2-2" SchemaDate="2012-05-11" xmlns:ns="http://www.nhsia.nhs.uk/DataStandards/XMLschema/CDS/ns">
   <ns:CDSInterchangeHeader>
-    <ns:CDSInterchangeSenderIdentity>EMS</ns:CDSInterchangeSenderIdentity>
-    <ns:CDSInterchangeReceiverIdentity>SUS</ns:CDSInterchangeReceiverIdentity>
+    <ns:CDSInterchangeSenderIdentity>120000000000</ns:CDSInterchangeSenderIdentity>
+    <ns:CDSInterchangeReceiverIdentity>150000000000000</ns:CDSInterchangeReceiverIdentity>
     <ns:CDSInterchangeControlReference>1</ns:CDSInterchangeControlReference>
     <ns:CDSInterchangeDateOfPreparation>2020-01-01</ns:CDSInterchangeDateOfPreparation>
     <ns:CDSInterchangeTimeOfPreparation>00:00:00</ns:CDSInterchangeTimeOfPreparation>
-    <ns:CDSInterchangeApplicationReference>5bd5db27-f9d9-</ns:CDSInterchangeApplicationReference>
+    <ns:CDSInterchangeApplicationReference>14000000000000</ns:CDSInterchangeApplicationReference>
     <ns:CDSInterchangeTestIndicator>1</ns:CDSInterchangeTestIndicator>
   </ns:CDSInterchangeHeader>
   <ns:CDSNetChange-All-MessageTypes CDSTypeCode="011" CDSProtocolIdentifierCode="010">
@@ -17,13 +17,13 @@
     <ns:CDSTransactionHeader_NetChange>
       <ns:CDSTypeCode>011</ns:CDSTypeCode>
       <ns:CDSProtocolIdentifierCode>010</ns:CDSProtocolIdentifierCode>
-      <ns:CDSUniqueIdentifier>588f2677-2401-</ns:CDSUniqueIdentifier>
+      <ns:CDSUniqueIdentifier>3500000000000000000000000000000000</ns:CDSUniqueIdentifier>
       <ns:CDSUpdateType>9</ns:CDSUpdateType>
       <ns:CDSApplicableDate>2020-01-01</ns:CDSApplicableDate>
       <ns:CDSApplicableTime>00:00:00</ns:CDSApplicableTime>
-      <ns:CDSActivityDate>2020-01-08</ns:CDSActivityDate>
-      <ns:OrganisationCode_CDSSenderIdentity>EMS</ns:OrganisationCode_CDSSenderIdentity>
-      <ns:OrganisationCode_CDSPrimeRecipientIdentity>100000000000</ns:OrganisationCode_CDSPrimeRecipientIdentity>
+      <ns:CDSActivityDate>2020-01-01</ns:CDSActivityDate>
+      <ns:OrganisationCode_CDSSenderIdentity>120000000000</ns:OrganisationCode_CDSSenderIdentity>
+      <ns:OrganisationCode_CDSPrimeRecipientIdentity>120000000000</ns:OrganisationCode_CDSPrimeRecipientIdentity>
     </ns:CDSTransactionHeader_NetChange>
     <ns:EmergencyCare>
       <ns:PersonGroupPatient>
@@ -35,7 +35,7 @@
         </ns:PatientIdentity>
       </ns:PersonGroupPatient>
       <ns:EmergencyCareAttendanceLocation>
-        <ns:OrganisationSiteIdentifier_OfTreatment>Test ED</ns:OrganisationSiteIdentifier_OfTreatment>
+        <ns:OrganisationSiteIdentifier_OfTreatment>900000000</ns:OrganisationSiteIdentifier_OfTreatment>
         <ns:EmergencyCareDepartmentType>01</ns:EmergencyCareDepartmentType>
       </ns:EmergencyCareAttendanceLocation>
       <ns:AttendanceOccurrence>
@@ -46,8 +46,8 @@
           <ns:AgeAtCdsActivityDate>20</ns:AgeAtCdsActivityDate>
         </ns:EmergencyCareAttendanceActivityCharacteristics>
         <ns:ServiceAgreementDetails>
-          <ns:OrganisationIdentifier_CodeOfProvider>20000</ns:OrganisationIdentifier_CodeOfProvider>
-          <ns:OrganisationIdentifier_CodeOfCommissioner>30000</ns:OrganisationIdentifier_CodeOfCommissioner>
+          <ns:OrganisationIdentifier_CodeOfProvider>50000</ns:OrganisationIdentifier_CodeOfProvider>
+          <ns:OrganisationIdentifier_CodeOfCommissioner>50000</ns:OrganisationIdentifier_CodeOfCommissioner>
         </ns:ServiceAgreementDetails>
       </ns:AttendanceOccurrence>
     </ns:EmergencyCare>

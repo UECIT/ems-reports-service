@@ -16,7 +16,7 @@ import uk.nhs.cdss.reports.model.EncounterReportInput.EncounterReportInputBuilde
 public class ECDSReportTransformerTest {
 
   @Test
-  public void empty_report_input() throws IOException {
+  public void empty_report_input() throws IOException, TransformationException {
     EncounterReportInput encounterReportInput = stubInput().build();
 
     String output = new ECDSReportTransformer().transform(encounterReportInput);
@@ -27,7 +27,7 @@ public class ECDSReportTransformerTest {
   }
 
   @Test
-  public void basic_report_input() throws IOException {
+  public void basic_report_input() throws IOException, TransformationException {
     EncounterReportInput encounterReportInput = stubInput()
         .patient(stubPatient())
         .build();
