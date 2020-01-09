@@ -2,11 +2,13 @@ package uk.nhs.cdss.reports.transform;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.UUID;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlDate;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Patient;
@@ -16,6 +18,7 @@ import uk.nhs.nhsia.datastandards.ecds.AN2ECType;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.EmergencyCareAttendanceActivityCharacteristics;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.ServiceAgreementDetails;
+import uk.nhs.nhsia.datastandards.ecds.CDSActivityDateType;
 import uk.nhs.nhsia.datastandards.ecds.CDSApplicableDateType;
 import uk.nhs.nhsia.datastandards.ecds.CDSApplicableTimeType;
 import uk.nhs.nhsia.datastandards.ecds.CDSInterchangeDateOfPreparationType;
@@ -33,6 +36,7 @@ import uk.nhs.nhsia.datastandards.ecds.CDSTypeCodeType;
 import uk.nhs.nhsia.datastandards.ecds.CDSUpdateTypeType;
 import uk.nhs.nhsia.datastandards.ecds.CDSXMLInterchangeDocument;
 import uk.nhs.nhsia.datastandards.ecds.CDSXMLInterchangeDocument.CDSXMLInterchange;
+import uk.nhs.nhsia.datastandards.ecds.DateType;
 import uk.nhs.nhsia.datastandards.ecds.EmergencyCareStucture;
 import uk.nhs.nhsia.datastandards.ecds.EmergencyCareStucture.EmergencyCareAttendanceLocation;
 import uk.nhs.nhsia.datastandards.ecds.NHSNumberStatusIndicatorCodeUnverifiedType;
@@ -44,6 +48,7 @@ import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.UnverifiedIdentityStructu
 import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.WithheldIdentityStructure;
 import uk.nhs.nhsia.datastandards.ecds.PersonGroupPatientECStructure;
 import uk.nhs.nhsia.datastandards.ecds.PersonNameStructure.PersonNameStructured;
+import uk.nhs.nhsia.datastandards.ecds.TimeType;
 import uk.nhs.nhsia.datastandards.ecds.WithheldIdentityReasonType;
 
 @Component
@@ -55,7 +60,7 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
   private long attendanceRef = 0;
 
   @Override
-  public String transform(EncounterReportInput input) {
+  public String transform(EncounterReportInput input) throws TransformationException {
     CDSXMLInterchangeDocument document = CDSXMLInterchangeDocument.Factory.newInstance();
     CDSXMLInterchange interchange = document.addNewCDSXMLInterchange();
     interchange.setSchemaVersion("6-2-2");
@@ -65,7 +70,7 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
     buildMessage(interchange, input, header);
     buildInterchangeTrailer(interchange, input, header);
 
-    document.validate();
+    validate(document);
 
     try {
       StringWriter output = new StringWriter();
@@ -85,21 +90,21 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
 
     // Where an Organisation acts on behalf of another NHS Organisation, care must be taken to ensure the correct use of the identity.
     // For data submitted to the service, the CDS INTERCHANGE SENDER IDENTITY is the Electronic Data Interchange (EDI) address of the sending site.
-    header.setCDSInterchangeSenderIdentity("EMS");
+    header.setCDSInterchangeSenderIdentity("120000000000");
 
     // All Commissioning Data Set XML Schema interchanges submitted must contain the CDS INTERCHANGE RECEIVER IDENTITY of the Secondary Uses Service.
-    header.setCDSInterchangeReceiverIdentity("SUS");
+    header.setCDSInterchangeReceiverIdentity("150000000000000");
 
     // For each Interchange submitted, the CDS INTERCHANGE CONTROL REFERENCE must be incremented by 1. The maximum value supported is n7 and wrap around from 9999999 to 1 must be supported.
     header.setCDSInterchangeControlReference(nextControlRef());
 
-    header.xsetCDSInterchangeDateOfPreparation(CDSInterchangeDateOfPreparationType.Factory
-        .newValue(formatDate(input, DATE_FORMAT)));
-    header.xsetCDSInterchangeTimeOfPreparation(CDSInterchangeTimeOfPreparationType.Factory
-        .newValue(formatDate(input, TIME_FORMAT)));
+    header.xsetCDSInterchangeDateOfPreparation(
+        formatDate(input.getDateOfPreparation(), CDSInterchangeDateOfPreparationType.type));
+    header.xsetCDSInterchangeTimeOfPreparation(
+        formatTime(input.getDateOfPreparation(), CDSInterchangeTimeOfPreparationType.type));
 
     // This facility enables submitted interchanges to be marked to enable interchange content to be identified and recorded.
-    header.setCDSInterchangeApplicationReference(UUID.randomUUID().toString());
+    header.setCDSInterchangeApplicationReference("14000000000000");
 
     // This optional test facility enables interchanges submitted to be marked and therefore processed as Test or Production data.
     header.setCDSInterchangeTestIndicator("1");
@@ -148,18 +153,18 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
     header.setCDSProtocolIdentifierCode(CDSProtocolIdentifierCodeType.X_010);
 
     // TODO populate from encounter
-    header.setCDSUniqueIdentifier(UUID.randomUUID().toString());
+    header.setCDSUniqueIdentifier("3500000000000000000000000000000000");
 
     // 9 --> Original or Replacement
     header.setCDSUpdateType(CDSUpdateTypeType.X_9);
 
-    header.xsetCDSApplicableDate(CDSApplicableDateType.Factory
-        .newValue(formatDate(input, DATE_FORMAT)));
-    header.xsetCDSApplicableTime(CDSApplicableTimeType.Factory
-        .newValue(formatDate(input, TIME_FORMAT)));
+    header.xsetCDSApplicableDate(
+        formatDate(input.getDateOfPreparation(), CDSApplicableDateType.type));
+    header.xsetCDSApplicableTime(
+        formatTime(input.getDateOfPreparation(), CDSApplicableTimeType.type));
 
     // TODO populate from encounter
-    header.setCDSActivityDate(Calendar.getInstance());
+    header.xsetCDSActivityDate(formatDate(input.getDateOfPreparation(), CDSActivityDateType.type));
 
     // CDS SENDER IDENTITY is the mandatory NHS ORGANISATION CODE of the Organisation acting as the physical Sender of Commissioning Data Set submissions.
     header
@@ -168,11 +173,7 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
     // CDS PRIME RECIPIENT IDENTITY is the mandatory NHS ORGANISATION CODE (or valid Organisation Data Service Default Code) representing the Organisation
     // determined to be the Commissioning Data Set Prime Recipient of the Commissioning Data Set Message as indicated in the Commissioning Data Set Addressing Grid.
     // TODO populate from encounter
-    header.setOrganisationCodeCDSPrimeRecipientIdentity("Residence Responsibility");
-  }
-
-  private String formatDate(EncounterReportInput input, String s) {
-    return DateFormatUtils.format(input.getDateOfPreparation(), s);
+    header.setOrganisationCodeCDSPrimeRecipientIdentity("120000000000");
   }
 
   private void addPatientInformation(EmergencyCareStucture emergencyCare,
@@ -228,7 +229,7 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
         .addNewEmergencyCareAttendanceLocation();
 
     // Required
-    location.setOrganisationSiteIdentifierOfTreatment("Test ED");
+    location.setOrganisationSiteIdentifierOfTreatment("900000000");
 
     // 01 -> Emergency departments
     location.setEmergencyCareDepartmentType(AN2ECType.X_01);
@@ -241,19 +242,20 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
         .addNewEmergencyCareAttendanceActivityCharacteristics();
     activityCharacteristics.setEmergencyCareAttendanceIdentifier(Long.toString(++attendanceRef));
 
-    activityCharacteristics.setEmergencyCareArrivalDate(input.getDateOfPreparation()); // TODO
-    activityCharacteristics.setEmergencyCareArrivalTime(input.getDateOfPreparation()); // TODO
+    activityCharacteristics.xsetEmergencyCareArrivalDate(
+        formatDate(input.getDateOfPreparation(), DateType.type)); // TODO
+    activityCharacteristics.xsetEmergencyCareArrivalTime(
+        formatTime(input.getDateOfPreparation(), TimeType.type)); // TODO
     activityCharacteristics.setAgeAtCdsActivityDate(20); // TODO
 
     ServiceAgreementDetails serviceAgreement = attendanceStructure
         .addNewServiceAgreementDetails();
 
-    serviceAgreement.setOrganisationIdentifierCodeOfProvider("provider"); // TODO
-    serviceAgreement.setOrganisationIdentifierCodeOfCommissioner("commissioner"); // TODO
+    serviceAgreement.setOrganisationIdentifierCodeOfProvider("50000"); // TODO
+    serviceAgreement.setOrganisationIdentifierCodeOfCommissioner("50000"); // TODO
 
     // TODO populate from encounter
   }
-
 
   private void buildInterchangeTrailer(CDSXMLInterchange interchange,
       EncounterReportInput input,
@@ -272,5 +274,35 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
     }
 
     return Long.toString(controlRef);
+  }
+
+  private <T extends DateType> T formatDate(Calendar value, SchemaType type) {
+    String dateString = DateFormatUtils.format(value, DATE_FORMAT);
+    return (T) type.newValue(dateString);
+  }
+
+  private <T extends TimeType> T formatTime(Calendar value, SchemaType type) {
+    String timeString = DateFormatUtils.format(value, TIME_FORMAT);
+    return (T) type.newValue(timeString);
+  }
+
+  private void validate(CDSXMLInterchangeDocument document) throws TransformationException {
+    XmlOptions validateOptions = new XmlOptions();
+    ArrayList<XmlError> errorList = new ArrayList<>();
+    validateOptions.setErrorListener(errorList);
+
+    // Validate the XML.
+    boolean isValid = document.validate(validateOptions);
+
+    // If the XML isn't valid, loop through the listener's contents,
+    // printing contained messages.
+    if (!isValid) {
+      StringBuilder message = new StringBuilder("Validation failed:\n");
+      for (XmlError error : errorList) {
+        message.append(error.getMessage() + "\n");
+      }
+
+      throw new ValidationException(message.toString());
+    }
   }
 }

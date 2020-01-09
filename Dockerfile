@@ -7,7 +7,7 @@ RUN mvn -B -Dmaven.repo.local=/app/.m2 dependency:go-offline
 FROM deps as build
 
 COPY src src
-RUN mvn -B -Dmaven.repo.local=/app/.m2 package -DskipTests
+RUN mvn -B -Dmaven.repo.local=/app/.m2 package
 
 FROM openjdk:11-jre-slim
 WORKDIR /app
