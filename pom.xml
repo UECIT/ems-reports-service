@@ -45,6 +45,14 @@
       <name>bintray</name>
       <url>https://dl.bintray.com/ems-test-harness/ecds-schema</url>
     </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-ems-test-harness-iucds-schema</id>
+      <name>bintray</name>
+      <url>https://dl.bintray.com/ems-test-harness/iucds-schema</url>
+    </repository>
   </repositories>
 
   <dependencies>
@@ -128,6 +136,11 @@
       <groupId>uk.nhs.nhsia.datastandards</groupId>
       <artifactId>ecds-schema</artifactId>
       <version>6.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.nhs.connect.iucds</groupId>
+      <artifactId>iucds-schema</artifactId>
+      <version>3.0.RC1</version>
     </dependency>
 
     <!-- Other -->

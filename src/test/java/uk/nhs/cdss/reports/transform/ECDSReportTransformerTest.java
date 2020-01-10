@@ -13,7 +13,7 @@ import org.junit.Test;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.model.EncounterReportInput.EncounterReportInputBuilder;
 
-public class ECDSReportTransformerTest {
+public class ECDSReportTransformerTest extends EncounterReportTestBase {
 
   @Test
   public void empty_report_input() throws IOException, TransformationException {
@@ -39,17 +39,4 @@ public class ECDSReportTransformerTest {
     Assert.assertEquals(expected, output);
   }
 
-  private EncounterReportInputBuilder stubInput() {
-    return EncounterReportInput.builder()
-        .dateOfPreparation(new Calendar.Builder()
-            .setDate(2020, 0, 1)
-            .build());
-  }
-
-  private Patient stubPatient() {
-    return new Patient()
-        .setBirthDate(new Calendar.Builder().setDate(2000, 0, 1).build().getTime())
-        .setGender(AdministrativeGender.FEMALE)
-        .addName(new HumanName().addGiven("Jane").setFamily("Doe"));
-  }
 }
