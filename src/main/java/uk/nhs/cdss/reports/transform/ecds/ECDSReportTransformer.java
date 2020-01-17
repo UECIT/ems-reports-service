@@ -1,7 +1,5 @@
-package uk.nhs.cdss.reports.transform;
+package uk.nhs.cdss.reports.transform.ecds;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -14,6 +12,9 @@ import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.springframework.stereotype.Component;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
+import uk.nhs.cdss.reports.transform.ReportXMLTransformer;
+import uk.nhs.cdss.reports.transform.TransformationException;
+import uk.nhs.cdss.reports.transform.ValidationException;
 import uk.nhs.nhsia.datastandards.ecds.AN2ECType;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.EmergencyCareAttendanceActivityCharacteristics;
@@ -52,7 +53,7 @@ import uk.nhs.nhsia.datastandards.ecds.TimeType;
 import uk.nhs.nhsia.datastandards.ecds.WithheldIdentityReasonType;
 
 @Component
-public class ECDSReportTransformer implements ReportXMLTransformer<EncounterReportInput> {
+public class ECDSReportTransformer implements ReportXMLTransformer {
 
   public static final String TIME_FORMAT = "HH:mm:ss";
   public static final String DATE_FORMAT = "yyyy-MM-dd";
@@ -60,7 +61,8 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
   private long attendanceRef = 0;
 
   @Override
-  public String transform(EncounterReportInput input) throws TransformationException {
+  public CDSXMLInterchangeDocument transform(EncounterReportInput input)
+      throws TransformationException {
     CDSXMLInterchangeDocument document = CDSXMLInterchangeDocument.Factory.newInstance();
     CDSXMLInterchange interchange = document.addNewCDSXMLInterchange();
     interchange.setSchemaVersion("6-2-2");
@@ -72,16 +74,7 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
 
     validate(document);
 
-    try {
-      StringWriter output = new StringWriter();
-      document.save(output, new XmlOptions()
-          .setSavePrettyPrint()
-      );
-      return output.toString();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return null;
+    return document;
   }
 
   private CDSInterchangeHeaderStructure buildInterchangeHeader(CDSXMLInterchange interchange,
@@ -299,7 +292,7 @@ public class ECDSReportTransformer implements ReportXMLTransformer<EncounterRepo
     if (!isValid) {
       StringBuilder message = new StringBuilder("Validation failed:\n");
       for (XmlError error : errorList) {
-        message.append(error.getMessage() + "\n");
+        message.append(error.getMessage()).append("\n");
       }
 
       throw new ValidationException(message.toString());

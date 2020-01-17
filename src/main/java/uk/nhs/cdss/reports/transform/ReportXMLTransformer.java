@@ -1,6 +1,9 @@
 package uk.nhs.cdss.reports.transform;
 
-public interface ReportXMLTransformer<T> {
+import org.apache.xmlbeans.XmlObject;
+import uk.nhs.cdss.reports.model.EncounterReportInput;
 
-  String transform(T input) throws TransformationException;
+public interface ReportXMLTransformer {
+
+  XmlObject transform(EncounterReportInput input) throws TransformationException;
 }
