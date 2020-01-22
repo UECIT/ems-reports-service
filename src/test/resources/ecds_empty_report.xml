@@ -2,7 +2,7 @@
   <ns:CDSInterchangeHeader>
     <ns:CDSInterchangeSenderIdentity>120000000000</ns:CDSInterchangeSenderIdentity>
     <ns:CDSInterchangeReceiverIdentity>150000000000000</ns:CDSInterchangeReceiverIdentity>
-    <ns:CDSInterchangeControlReference>1</ns:CDSInterchangeControlReference>
+    <ns:CDSInterchangeControlReference>0000001</ns:CDSInterchangeControlReference>
     <ns:CDSInterchangeDateOfPreparation>2020-01-01</ns:CDSInterchangeDateOfPreparation>
     <ns:CDSInterchangeTimeOfPreparation>00:00:00</ns:CDSInterchangeTimeOfPreparation>
     <ns:CDSInterchangeApplicationReference>14000000000000</ns:CDSInterchangeApplicationReference>
@@ -13,6 +13,7 @@
       <ns:CDSMessageType>NHSCDS</ns:CDSMessageType>
       <ns:CDSMessageVersionNumber>CDS062</ns:CDSMessageVersionNumber>
       <ns:CDSMessageReferenceNumber>1</ns:CDSMessageReferenceNumber>
+      <ns:CDSMessageRecordIdentifier>120000000000  00000010000001</ns:CDSMessageRecordIdentifier>
     </ns:CDSMessageHeader>
     <ns:CDSTransactionHeader_NetChange>
       <ns:CDSTypeCode>011</ns:CDSTypeCode>
@@ -56,7 +57,7 @@
     </ns:CDSMessageTrailer>
   </ns:CDSNetChange-All-MessageTypes>
   <ns:CDSInterchangeTrailer>
-    <ns:CDSInterchangeControlReference>1</ns:CDSInterchangeControlReference>
+    <ns:CDSInterchangeControlReference>0000001</ns:CDSInterchangeControlReference>
     <ns:CDSInterchangeControlCount>1</ns:CDSInterchangeControlCount>
   </ns:CDSInterchangeTrailer>
 </ns:CDS-XMLInterchange>

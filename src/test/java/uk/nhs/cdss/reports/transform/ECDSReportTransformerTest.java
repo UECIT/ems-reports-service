@@ -18,7 +18,8 @@ public class ECDSReportTransformerTest {
   public void empty_report_input() throws IOException, TransformationException {
     EncounterReportInput encounterReportInput = Stub.input().build();
 
-    CDSXMLInterchangeDocument output = new ECDSReportTransformer().transform(encounterReportInput);
+    CDSXMLInterchangeDocument output = new ECDSReportTransformer(Stub.counterService())
+        .transform(encounterReportInput);
 
     URL resource = getClass().getResource("/ecds_empty_report.xml");
     String expected = IOUtils.toString(resource, StandardCharsets.UTF_8);
@@ -31,7 +32,8 @@ public class ECDSReportTransformerTest {
         .patient(Stub.patient())
         .build();
 
-    CDSXMLInterchangeDocument output = new ECDSReportTransformer().transform(encounterReportInput);
+    CDSXMLInterchangeDocument output = new ECDSReportTransformer(Stub.counterService())
+        .transform(encounterReportInput);
 
     URL resource = getClass().getResource("/ecds_basic_report.xml");
     String expected = IOUtils.toString(resource, StandardCharsets.UTF_8);

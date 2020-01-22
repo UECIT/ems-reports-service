@@ -2,6 +2,7 @@ package uk.nhs.cdss.reports.transform.ecds;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.xmlbeans.SchemaType;
@@ -12,6 +13,7 @@ import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.springframework.stereotype.Component;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
+import uk.nhs.cdss.reports.service.CounterService;
 import uk.nhs.cdss.reports.transform.ReportXMLTransformer;
 import uk.nhs.cdss.reports.transform.TransformationException;
 import uk.nhs.cdss.reports.transform.ValidationException;
@@ -53,12 +55,15 @@ import uk.nhs.nhsia.datastandards.ecds.TimeType;
 import uk.nhs.nhsia.datastandards.ecds.WithheldIdentityReasonType;
 
 @Component
+@RequiredArgsConstructor
 public class ECDSReportTransformer implements ReportXMLTransformer {
 
-  public static final String TIME_FORMAT = "HH:mm:ss";
-  public static final String DATE_FORMAT = "yyyy-MM-dd";
-  private long controlRef = 0;
+  private static final long MAX_CONTROL_REF = 9999999L;
+  private static final String TIME_FORMAT = "HH:mm:ss";
+  private static final String DATE_FORMAT = "yyyy-MM-dd";
+
   private long attendanceRef = 0;
+  private final CounterService counterService;
 
   @Override
   public CDSXMLInterchangeDocument transform(EncounterReportInput input)
@@ -89,7 +94,8 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
     header.setCDSInterchangeReceiverIdentity("150000000000000");
 
     // For each Interchange submitted, the CDS INTERCHANGE CONTROL REFERENCE must be incremented by 1. The maximum value supported is n7 and wrap around from 9999999 to 1 must be supported.
-    header.setCDSInterchangeControlReference(nextControlRef());
+    var next = counterService.incrementAndGetCounter(ECDSCounters.INTERCHANGE_CONTROL_REFERENCE);
+    header.setCDSInterchangeControlReference(String.format("%07d", next % MAX_CONTROL_REF));
 
     header.xsetCDSInterchangeDateOfPreparation(
         formatDate(input.getDateOfPreparation(), CDSInterchangeDateOfPreparationType.type));
@@ -119,6 +125,11 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
     header.setCDSMessageType(CDSMessageTypeType.NHSCDS);
     header.setCDSMessageVersionNumber(CDSMessageVersionNumberType.CDS_062);
     header.setCDSMessageReferenceNumber(1);
+
+    var senderId = interchangeHeader.getCDSInterchangeSenderIdentity();
+    var controlRef = interchangeHeader.getCDSInterchangeControlReference();
+    var messageRef = "0000001";
+    header.setCDSMessageRecordIdentifier(senderId + "  " + controlRef + messageRef);
 
     // Message body
     // Required elements
@@ -258,15 +269,6 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
     // Required
     trailer.setCDSInterchangeControlReference(header.getCDSInterchangeControlReference());
     trailer.setCDSInterchangeControlCount(1);
-  }
-
-  private String nextControlRef() {
-    controlRef++;
-    if (controlRef >= 9999999) {
-      controlRef = 1;
-    }
-
-    return Long.toString(controlRef);
   }
 
   private <T extends DateType> T formatDate(Calendar value, SchemaType type) {
