@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerErrorException;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
+import uk.nhs.cdss.reports.service.EncounterReportService;
 import uk.nhs.cdss.reports.model.ReportsDTO;
-import uk.nhs.cdss.reports.service.FhirService;
 import uk.nhs.cdss.reports.transform.TransformationException;
 import uk.nhs.cdss.reports.transform.ecds.ECDSReportTransformer;
 import uk.nhs.cdss.reports.transform.iucds.IUCDSReportTransformer;
@@ -26,7 +26,7 @@ import uk.nhs.nhsia.datastandards.ecds.CDSXMLInterchangeDocument;
 @AllArgsConstructor
 public class EncounterReportController {
 
-  private FhirService fhirService;
+  private EncounterReportService encounterReportService;
 
   public final ECDSReportTransformer ecdsReportTransformer;
   public final IUCDSReportTransformer iucdsReportTransformer;
@@ -35,7 +35,7 @@ public class EncounterReportController {
   public ResponseEntity<ReportsDTO> generateReports(
       @RequestParam("encounter") String encounterRef) {
 
-    EncounterReportInput encounterReportInput = fhirService
+    EncounterReportInput encounterReportInput = encounterReportService
         .createEncounterReportInput(new ReferenceParam(encounterRef));
 
     try {

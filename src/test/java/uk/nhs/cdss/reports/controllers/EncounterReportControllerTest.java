@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.springframework.http.ResponseEntity;
 import uk.nhs.cdss.reports.Stub;
 import uk.nhs.cdss.reports.model.ReportsDTO;
+import uk.nhs.cdss.reports.service.CounterService;
+import uk.nhs.cdss.reports.service.EncounterReportService;
 import uk.nhs.cdss.reports.service.FhirService;
 import uk.nhs.cdss.reports.transform.ecds.ECDSReportTransformer;
 import uk.nhs.cdss.reports.transform.iucds.IUCDSReportTransformer;
@@ -16,7 +18,7 @@ public class EncounterReportControllerTest {
 
   @Test
   public void generateReports() {
-    FhirService mockFhirService = mock(FhirService.class);
+    var mockFhirService = mock(EncounterReportService.class);
     when(mockFhirService.createEncounterReportInput(any())).thenReturn(
         Stub.input()
             .patient(Stub.patient())
@@ -25,7 +27,7 @@ public class EncounterReportControllerTest {
 
     EncounterReportController reportController =
         new EncounterReportController(mockFhirService,
-            new ECDSReportTransformer(), new IUCDSReportTransformer());
+            new ECDSReportTransformer(Stub.counterService()), new IUCDSReportTransformer());
 
     ResponseEntity<ReportsDTO> result = reportController.generateReports("123");
     System.out.println(result);
