@@ -22,7 +22,7 @@ public class EncounterReportService {
     Encounter encounter = fhirService.getEncounter(encounterId);
 
     Patient patient = encounter.hasSubject()
-        ? fhirService.getPatient(encounter.getSubject().getId())
+        ? fhirService.getPatient(encounter.getSubject().getReference())
         : null;
 
     List<ReferralRequest> referralRequests = fhirService
