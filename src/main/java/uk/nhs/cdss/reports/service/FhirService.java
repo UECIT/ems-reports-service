@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
@@ -26,21 +25,11 @@ public class FhirService {
 
   public List<ReferralRequest> getReferralRequests(String encounterId) {
     return fhirClient.search()
-        .byUrl("ReferralRequest?context:Encounter=Encounter/" + encounterId)
+        .byUrl("ReferralRequest?context:Encounter=" + encounterId)
         .returnBundle(Bundle.class)
         .execute()
         .getEntry().stream()
         .map(entry -> (ReferralRequest)entry.getResource())
-        .collect(Collectors.toList());
-  }
-
-  public List<Composition> getCompositions(String encounterId) {
-    return fhirClient.search()
-        .byUrl("Composition?encounter:Encounter=Encounter/" + encounterId)
-        .returnBundle(Bundle.class)
-        .execute()
-        .getEntry().stream()
-        .map(entry -> (Composition)entry.getResource())
         .collect(Collectors.toList());
   }
 
