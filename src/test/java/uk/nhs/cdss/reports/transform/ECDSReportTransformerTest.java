@@ -9,7 +9,6 @@ import org.junit.Test;
 import uk.nhs.cdss.reports.Stub;
 import uk.nhs.cdss.reports.controllers.EncounterReportController;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
-import uk.nhs.cdss.reports.transform.ecds.ECDSReportTransformer;
 import uk.nhs.nhsia.datastandards.ecds.CDSXMLInterchangeDocument;
 
 public class ECDSReportTransformerTest {
@@ -18,8 +17,7 @@ public class ECDSReportTransformerTest {
   public void empty_report_input() throws IOException, TransformationException {
     EncounterReportInput encounterReportInput = Stub.input().build();
 
-    CDSXMLInterchangeDocument output = new ECDSReportTransformer(Stub.counterService())
-        .transform(encounterReportInput);
+    CDSXMLInterchangeDocument output = Stub.ecdsTransformer().transform(encounterReportInput);
 
     URL resource = getClass().getResource("/ecds_empty_report.xml");
     String expected = IOUtils.toString(resource, StandardCharsets.UTF_8);
@@ -32,8 +30,7 @@ public class ECDSReportTransformerTest {
         .patient(Stub.patient())
         .build();
 
-    CDSXMLInterchangeDocument output = new ECDSReportTransformer(Stub.counterService())
-        .transform(encounterReportInput);
+    CDSXMLInterchangeDocument output = Stub.ecdsTransformer().transform(encounterReportInput);
 
     URL resource = getClass().getResource("/ecds_basic_report.xml");
     String expected = IOUtils.toString(resource, StandardCharsets.UTF_8);
