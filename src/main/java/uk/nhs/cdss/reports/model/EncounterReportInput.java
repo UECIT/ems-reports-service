@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Value;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 
 @Value
@@ -16,5 +17,6 @@ public class EncounterReportInput {
   List<ReferralRequest> referralRequest;
   Encounter encounter;
   Patient patient;
+  List<Practitioner> participants;
 
 }
