@@ -57,8 +57,8 @@
           <ns:AgeAtCdsActivityDate>20</ns:AgeAtCdsActivityDate>
         </ns:EmergencyCareAttendanceActivityCharacteristics>
         <ns:ServiceAgreementDetails>
-          <ns:OrganisationIdentifier_CodeOfProvider>50000</ns:OrganisationIdentifier_CodeOfProvider>
-          <ns:OrganisationIdentifier_CodeOfCommissioner>50000</ns:OrganisationIdentifier_CodeOfCommissioner>
+          <ns:OrganisationIdentifier_CodeOfProvider>AA100</ns:OrganisationIdentifier_CodeOfProvider>
+          <ns:OrganisationIdentifier_CodeOfCommissioner>2BB00</ns:OrganisationIdentifier_CodeOfCommissioner>
         </ns:ServiceAgreementDetails>
       </ns:AttendanceOccurrence>
     </ns:EmergencyCare>

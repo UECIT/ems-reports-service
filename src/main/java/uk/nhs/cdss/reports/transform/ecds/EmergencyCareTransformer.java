@@ -1,5 +1,6 @@
 package uk.nhs.cdss.reports.transform.ecds;
 
+import com.google.common.base.Preconditions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
@@ -15,6 +16,7 @@ public class EmergencyCareTransformer {
   private final AttendanceOccurrenceTransformer attendanceOccurrenceTransformer;
 
   public EmergencyCareStucture transform(EncounterReportInput input) {
+
     var emergencyCare = EmergencyCareStucture.Factory.newInstance();
 
     emergencyCare.setPersonGroupPatient(patientTransformer.transform(input.getPatient()));
@@ -25,7 +27,8 @@ public class EmergencyCareTransformer {
   }
 
   private EmergencyCareAttendanceLocation getAttendanceLocation() {
-    EmergencyCareAttendanceLocation location = EmergencyCareAttendanceLocation.Factory.newInstance();
+    EmergencyCareAttendanceLocation location = EmergencyCareAttendanceLocation.Factory
+        .newInstance();
 
     // Required
     location.setOrganisationSiteIdentifierOfTreatment("900000000");

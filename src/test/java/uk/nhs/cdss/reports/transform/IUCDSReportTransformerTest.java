@@ -1,18 +1,12 @@
 package uk.nhs.cdss.reports.transform;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Test;
 import uk.nhs.cdss.reports.Stub;
 import uk.nhs.cdss.reports.controllers.EncounterReportController;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
-import uk.nhs.cdss.reports.transform.ecds.ECDSReportTransformer;
 import uk.nhs.cdss.reports.transform.iucds.IUCDSReportTransformer;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
-import uk.nhs.nhsia.datastandards.ecds.CDSXMLInterchangeDocument;
 
 public class IUCDSReportTransformerTest {
 
