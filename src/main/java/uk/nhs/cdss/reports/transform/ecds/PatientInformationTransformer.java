@@ -1,11 +1,16 @@
 package uk.nhs.cdss.reports.transform.ecds;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.hl7.fhir.dstu3.model.CareConnectPatient;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.springframework.stereotype.Component;
 import uk.nhs.nhsia.datastandards.ecds.NHSNumberStatusIndicatorCodeUnverifiedType;
+import uk.nhs.nhsia.datastandards.ecds.NHSNumberStatusIndicatorCodeVerifiedType;
 import uk.nhs.nhsia.datastandards.ecds.NHSNumberStatusIndicatorCodeWithheldType;
 import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.UnverifiedIdentityStructure;
+import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.VerifiedIdentityStructure;
+import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.VerifiedIdentityStructure.DataElementStructure;
+import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.VerifiedIdentityStructure.LocalIdentifierStructure;
 import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.WithheldIdentityStructure;
 import uk.nhs.nhsia.datastandards.ecds.PersonGroupPatientECStructure;
 import uk.nhs.nhsia.datastandards.ecds.WithheldIdentityReasonType;
@@ -19,17 +24,37 @@ public class PatientInformationTransformer {
     // Required
     var patientIdentity = patientStructure.addNewPatientIdentity();
 
-    // TODO if we know the NHS number of the patient we can create a verified identity
-    // VERIFIED IDENTITY STRUCTURE
-    // Must be used where the NHS NUMBER STATUS INDICATOR CODE National Code = 01 (Number present and verified)
-
     if (patient == null) {
       patientIdentity.setWithheldIdentityStructure(getWithheldId());
-    } else {
+    } else if (patient instanceof CareConnectPatient) {
+      // TODO check verification status - NCTH-364
+      patientIdentity.setVerifiedIdentityStructure(getVerifiedId((CareConnectPatient)patient));
+    }
+    else {
       patientIdentity.setUnverifiedIdentityStructure(getUnverifiedId(patient));
     }
 
     return patientStructure;
+  }
+
+  private VerifiedIdentityStructure getVerifiedId(CareConnectPatient patient) {
+    // VERIFIED IDENTITY STRUCTURE
+    // Must be used where the NHS NUMBER STATUS INDICATOR CODE National Code = 01 (Number present and verified)
+    var id = VerifiedIdentityStructure.Factory.newInstance();
+    DataElementStructure dataElement = id.addNewDataElementStructure();
+
+    // TODO is LocalIdentifier used? Maybe the FHIR reference of the patient?
+//    LocalIdentifierStructure localIdentifier = id.addNewLocalIdentifierStructure();
+
+    id.setNHSNumberStatusIndicatorCode(NHSNumberStatusIndicatorCodeVerifiedType.X_01);
+    dataElement.setNHSNumberStatusIndicatorCode(NHSNumberStatusIndicatorCodeVerifiedType.X_01);
+
+    dataElement.setNHSNumber(patient.getIdentifierFirstRep().getValue());
+    if (patient.hasBirthDate()) {
+      dataElement.setPersonBirthDate(DateUtils.toCalendar(patient.getBirthDate()));
+    }
+
+    return id;
   }
 
   private WithheldIdentityStructure getWithheldId() {

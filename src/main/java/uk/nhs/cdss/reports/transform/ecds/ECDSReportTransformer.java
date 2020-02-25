@@ -1,11 +1,14 @@
 package uk.nhs.cdss.reports.transform.ecds;
 
+import com.google.common.base.Preconditions;
+import java.io.IOException;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.apache.xmlbeans.XmlDate;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
 import org.springframework.stereotype.Component;
+import uk.nhs.cdss.reports.controllers.EncounterReportController;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.service.CounterService;
 import uk.nhs.cdss.reports.transform.ReportXMLTransformer;
@@ -42,6 +45,9 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
   @Override
   public CDSXMLInterchangeDocument transform(EncounterReportInput input)
       throws TransformationException {
+
+    Preconditions.checkNotNull(input.getEncounter(), "No encounter");
+
     CDSXMLInterchangeDocument document = CDSXMLInterchangeDocument.Factory.newInstance();
     CDSXMLInterchange interchange = document.addNewCDSXMLInterchange();
     interchange.setSchemaVersion("6-2-2");
@@ -181,6 +187,12 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
       StringBuilder message = new StringBuilder("Validation failed:\n");
       for (XmlError error : errorList) {
         message.append(error.getMessage()).append("\n");
+      }
+
+      try {
+        message.append(EncounterReportController.prettyPrint(document));
+      } catch (IOException e) {
+        e.printStackTrace();
       }
 
       throw new ValidationException(message.toString());

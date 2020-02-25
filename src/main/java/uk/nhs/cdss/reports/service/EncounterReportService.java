@@ -1,13 +1,14 @@
 package uk.nhs.cdss.reports.service;
 
+import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import java.util.Calendar;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
-import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.instance.model.api.IIdType;
 import org.springframework.stereotype.Service;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 
@@ -15,37 +16,28 @@ import uk.nhs.cdss.reports.model.EncounterReportInput;
 @AllArgsConstructor
 public class EncounterReportService {
 
-  private FhirService fhirService;
+  private FhirContext fhirContext;
 
   public EncounterReportInput createEncounterReportInput(ReferenceParam encounterReference) {
-    var encounterId = encounterReference.getValue();
-    var encounter = fhirService.getEncounter(encounterId);
-    // If no full URL is given, assume it's from the same place as the Encounter
-    var makeAbsolute = absoluteUrl(encounterReference.getBaseUrl());
+
+    var fhirSession = new FhirSession(new Reference(encounterReference.getValue()), fhirContext);
+
+    var encounter = fhirSession.getEncounter();
 
     var practitioners = encounter.getParticipant()
         .stream()
         .map(EncounterParticipantComponent::getIndividual)
-        .map(Reference::getReference)
-        .map(IdType::new)
-        .filter(id -> id.getResourceType().equals("Practitioner"))
-        .map(makeAbsolute)
+        .filter(id -> id.getReferenceElement().getResourceType().equals("Practitioner"))
         .collect(Collectors.toUnmodifiableList());
-    var participants = fhirService.getParticipants(practitioners);
+    var participants = fhirSession.getParticipants(practitioners);
 
-    var patientId = new IdType(encounter.getSubject().getReference());
+    var patientRef = encounter.getSubject();
     return EncounterReportInput.builder()
         .dateOfPreparation(Calendar.getInstance())
         .encounter(encounter)
-        .patient(fhirService.getPatient(makeAbsolute.apply(patientId)))
-        .referralRequest(fhirService.getReferralRequests(encounterId))
+        .patient(fhirSession.getPatient(patientRef))
+        .referralRequest(fhirSession.getReferralRequests())
         .participants(participants)
         .build();
-  }
-
-  private static Function<IdType, String> absoluteUrl(String baseUrl) {
-    return id -> id.isAbsolute()
-          ? id.getValue()
-          : baseUrl + "/" + id.getValue();
   }
 }
