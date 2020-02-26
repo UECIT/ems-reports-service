@@ -32,6 +32,7 @@ import uk.nhs.cdss.reports.model.EncounterReportInput.EncounterReportInputBuilde
 import uk.nhs.cdss.reports.service.CounterService;
 import uk.nhs.cdss.reports.transform.ecds.AttendanceOccurrenceTransformer;
 import uk.nhs.cdss.reports.transform.ecds.ECDSReportTransformer;
+import uk.nhs.cdss.reports.transform.ecds.EmergencyCareDiagnosesTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareInvestigationsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTreatmentsTransformer;
@@ -100,6 +101,7 @@ public class Stub {
             new PatientInformationTransformer(),
             new AttendanceOccurrenceTransformer(
                 new ReferralsToOtherServicesTransformer(),
+                new EmergencyCareDiagnosesTransformer(Stub.counterService()),
                 new EmergencyCareInvestigationsTransformer(),
                 new EmergencyCareTreatmentsTransformer())));
   }
