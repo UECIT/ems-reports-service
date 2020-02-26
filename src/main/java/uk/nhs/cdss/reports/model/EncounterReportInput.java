@@ -8,6 +8,7 @@ import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
+import uk.nhs.cdss.reports.service.FhirSession;
 
 @Value
 @Builder
@@ -18,5 +19,6 @@ public class EncounterReportInput {
   Encounter encounter;
   Patient patient;
   List<Practitioner> participants;
+  FhirSession session;
 
 }

@@ -33,9 +33,11 @@ public class ECDSReportTransformerTest {
 
   @Test
   public void empty_report_input() throws IOException, TransformationException {
-    EncounterReportInput encounterReportInput = Stub.input().build();
+    EncounterReportInput encounterReportInput = Stub.input()
+        .session(fhirSession)
+        .build();
 
-    CDSXMLInterchangeDocument output = Stub.ecdsTransformer(fhirSession)
+    CDSXMLInterchangeDocument output = Stub.ecdsTransformer()
         .transform(encounterReportInput);
 
     URL resource = getClass().getResource("/ecds_empty_report.xml");
@@ -46,11 +48,12 @@ public class ECDSReportTransformerTest {
   @Test
   public void basic_report_input() throws IOException, TransformationException {
     EncounterReportInput encounterReportInput = Stub.input()
+        .session(fhirSession)
         .encounter(Stub.encounter())
         .patient(Stub.patient())
         .build();
 
-    CDSXMLInterchangeDocument output = Stub.ecdsTransformer(fhirSession)
+    CDSXMLInterchangeDocument output = Stub.ecdsTransformer()
         .transform(encounterReportInput);
 
     URL resource = getClass().getResource("/ecds_basic_report.xml");
