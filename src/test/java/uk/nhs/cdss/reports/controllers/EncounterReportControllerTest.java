@@ -37,14 +37,16 @@ public class EncounterReportControllerTest {
   public void generateReports() {
     when(encounterReportService.createEncounterReportInput(any())).thenReturn(
         Stub.input()
+            .session(fhirSession)
             .patient(Stub.patient())
+            .referralRequest(Stub.referralRequest())
             .build()
     );
 
     EncounterReportController reportController =
         new EncounterReportController(
             encounterReportService,
-            Stub.ecdsTransformer(fhirSession),
+            Stub.ecdsTransformer(),
             new IUCDSReportTransformer());
 
     ResponseEntity<ReportsDTO> result = reportController.generateReports("123");

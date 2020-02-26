@@ -22,4 +22,5 @@ public class DateTimeFormatter {
     String timeString = DateFormatUtils.format(value, TIME_FORMAT);
     return (T) type.newValue(timeString);
   }
+
 }

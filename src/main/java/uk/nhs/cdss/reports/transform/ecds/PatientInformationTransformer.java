@@ -10,7 +10,6 @@ import uk.nhs.nhsia.datastandards.ecds.NHSNumberStatusIndicatorCodeWithheldType;
 import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.UnverifiedIdentityStructure;
 import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.VerifiedIdentityStructure;
 import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.VerifiedIdentityStructure.DataElementStructure;
-import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.VerifiedIdentityStructure.LocalIdentifierStructure;
 import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.WithheldIdentityStructure;
 import uk.nhs.nhsia.datastandards.ecds.PersonGroupPatientECStructure;
 import uk.nhs.nhsia.datastandards.ecds.WithheldIdentityReasonType;
@@ -26,7 +25,7 @@ public class PatientInformationTransformer {
 
     if (patient == null) {
       patientIdentity.setWithheldIdentityStructure(getWithheldId());
-    } else if (patient instanceof CareConnectPatient) {
+    } else if (patient instanceof CareConnectPatient && false) { //TODO: NCTH-523 Fix NhsNumberIdentifier Profile
       // TODO check verification status - NCTH-364
       patientIdentity.setVerifiedIdentityStructure(getVerifiedId((CareConnectPatient)patient));
     }

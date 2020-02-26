@@ -6,7 +6,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.Calendar;
 import java.util.Calendar.Builder;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import lombok.experimental.UtilityClass;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.HumanName;
@@ -14,14 +19,18 @@ import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.ReferralRequest;
+import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralCategory;
+import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralPriority;
+import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestStatus;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.model.EncounterReportInput.EncounterReportInputBuilder;
 import uk.nhs.cdss.reports.service.CounterService;
-import uk.nhs.cdss.reports.service.FhirSession;
 import uk.nhs.cdss.reports.transform.ecds.AttendanceOccurrenceTransformer;
 import uk.nhs.cdss.reports.transform.ecds.ECDSReportTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientInformationTransformer;
+import uk.nhs.cdss.reports.transform.ecds.ReferralsToOtherServicesTransformer;
 
 @UtilityClass
 public class Stub {
@@ -57,17 +66,33 @@ public class Stub {
     return patient;
   }
 
+  public List<ReferralRequest> referralRequest() {
+    ReferralRequest referralRequest = new ReferralRequest()
+        .setStatus(ReferralRequestStatus.ACTIVE)
+        .setIntent(ReferralCategory.PLAN)
+        .setPriority(ReferralPriority.ROUTINE)
+        .setAuthoredOn(new Date())
+        .setServiceRequested(Collections.singletonList(new CodeableConcept()
+            .addCoding(new Coding("sys", "1234567", "display"))))
+        .setReasonCode(Collections.singletonList(new CodeableConcept()
+          .addCoding(new Coding("sys", "reason", "display"))));
+
+    referralRequest.setIdBase("123");
+    return Collections.singletonList(referralRequest);
+  }
+
   public CounterService counterService() {
     var mockCounterService = mock(CounterService.class);
     when(mockCounterService.incrementAndGetCounter(any())).thenReturn(1L);
     return mockCounterService;
   }
 
-  public ECDSReportTransformer ecdsTransformer(FhirSession fhirSession) {
+  public ECDSReportTransformer ecdsTransformer() {
     return new ECDSReportTransformer(
         Stub.counterService(),
         new EmergencyCareTransformer(
             new PatientInformationTransformer(),
-            new AttendanceOccurrenceTransformer(fhirSession)));
+            new AttendanceOccurrenceTransformer(
+                new ReferralsToOtherServicesTransformer())));
   }
 }

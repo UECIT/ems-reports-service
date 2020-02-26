@@ -1,6 +1,6 @@
 package uk.nhs.cdss.reports.transform.ecds;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.Calendar;
 import java.util.Collection;
@@ -10,10 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.stereotype.Component;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
-import uk.nhs.cdss.reports.service.FhirSession;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.CareProfessionalsEmergencyCare;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.EmergencyCareAttendanceActivityCharacteristics;
@@ -32,9 +30,9 @@ public class AttendanceOccurrenceTransformer {
   // TODO find correct commissioner org code
   private static final String commissionerOrgCode = "2BB00";
 
-  private final FhirSession fhirSession;
+  private final ReferralsToOtherServicesTransformer referralsToOtherServicesTransformer;
 
-  private long attendanceRef = 0;
+  private long attendanceRef;
 
   public AttendanceOccurrenceECStructure transform(EncounterReportInput input) {
     var attendanceStructure = AttendanceOccurrenceECStructure.Factory.newInstance();
@@ -42,10 +40,12 @@ public class AttendanceOccurrenceTransformer {
     // Required
     attendanceStructure.setEmergencyCareAttendanceActivityCharacteristics(
         transformActivity(input.getDateOfPreparation()));
-    attendanceStructure.setCareProfessionalsEmergencyCareArray(
-        transformProfessionals(input.getParticipants()));
+//    attendanceStructure.setCareProfessionalsEmergencyCareArray(
+//        transformProfessionals(input.getParticipants())); TODO: NCTH-522 Fix CareConnectPractitioner/Identifier profile
 
     attendanceStructure.setServiceAgreementDetails(transformServiceAgreement(input));
+    attendanceStructure.setReferralsToOtherServicesArray(
+        referralsToOtherServicesTransformer.transform(input.getReferralRequest()));
 
     // TODO populate from encounter
     return attendanceStructure;
@@ -65,26 +65,31 @@ public class AttendanceOccurrenceTransformer {
   }
 
   private ServiceAgreementDetails transformServiceAgreement(EncounterReportInput input) {
-    Reference serviceProviderRef = checkNotNull(input.getEncounter().getServiceProvider(),
-        "Unable to add ServiceAgreement - no Service Provider in Encounter");
-
-    Organization serviceProvider = fhirSession.getOrganization(serviceProviderRef);
-
     var serviceAgreement = ServiceAgreementDetails.Factory.newInstance();
 
-    // TODO Required if present
+    //TODO: Revert when serviceProvider populated
+    if (input.getEncounter().hasServiceProvider()) {
+      checkArgument(input.getEncounter().hasServiceProvider(), "Unable to add ServiceAgreement - no Service Provider in Encounter");
+           Organization serviceProvider = input.getSession().getOrganization(input.getEncounter().getServiceProvider());
+
+
+      // TODO Required if present
 //    serviceAgreement.setCommissioningSerialNumber("600000");
 
-    // Determine ODS code of supplier, issued by SUS
-    serviceProvider.getIdentifier().stream()
-        .filter(identifier -> identifier.getSystem().equals("ods"))
-        .findFirst()
-        .map(Identifier::getValue)
-        .ifPresent(s -> serviceAgreement.setOrganisationIdentifierCodeOfProvider(s));
+      // Determine ODS code of supplier, issued by SUS
+      serviceProvider.getIdentifier().stream()
+          .filter(identifier -> identifier.getSystem().equals("ods"))
+          .findFirst()
+          .map(Identifier::getValue)
+          .ifPresent(serviceAgreement::setOrganisationIdentifierCodeOfProvider);
 
-    // Hardcoded commissioner for this service
+      // Hardcoded commissioner for this service
+    }
+    else {
+      serviceAgreement.setOrganisationIdentifierCodeOfProvider("50000");
+    }
+
     serviceAgreement.setOrganisationIdentifierCodeOfCommissioner(commissionerOrgCode);
-
     return serviceAgreement;
   }
 
@@ -125,4 +130,6 @@ public class AttendanceOccurrenceTransformer {
         return ProfessionalRegistrationIssuerCodeECType.X_08;
     }
   }
+
+
 }
