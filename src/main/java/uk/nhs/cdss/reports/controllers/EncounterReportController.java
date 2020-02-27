@@ -4,6 +4,7 @@ import ca.uhn.fhir.rest.param.ReferenceParam;
 import java.io.IOException;
 import java.io.StringWriter;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import uk.nhs.nhsia.datastandards.ecds.CDSXMLInterchangeDocument;
 
 @RestController
 @AllArgsConstructor
+@Slf4j
 public class EncounterReportController {
 
   private EncounterReportService encounterReportService;
@@ -48,7 +50,9 @@ public class EncounterReportController {
           .iucds(prettyPrint(iucdsReport))
           .build();
 
-      // TODO store reports somewhere and return a reference
+      log.info("Transformed ECDS:\n{}", reportsDTO.getEcds());
+      log.info("Transformed IUCDS:\n{}", reportsDTO.getIucds());
+
       return ResponseEntity.status(HttpStatus.OK)
           .contentType(MediaType.APPLICATION_JSON)
           .body(reportsDTO);
