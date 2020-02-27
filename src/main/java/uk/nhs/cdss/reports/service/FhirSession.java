@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DomainResource;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Organization;
@@ -42,6 +43,10 @@ public class FhirSession {
 
   public Organization getOrganization(Reference id) {
     return fhirReader(Organization.class).apply(id);
+  }
+
+  public Condition getCondition(Reference id) {
+    return fhirReader(Condition.class).apply(id);
   }
 
   public List<Practitioner> getParticipants(List<Reference> participants) {
