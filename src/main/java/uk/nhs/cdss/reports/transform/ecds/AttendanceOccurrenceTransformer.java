@@ -31,6 +31,8 @@ public class AttendanceOccurrenceTransformer {
   private static final String commissionerOrgCode = "2BB00";
 
   private final ReferralsToOtherServicesTransformer referralsToOtherServicesTransformer;
+  private final EmergencyCareInvestigationsTransformer investigationsTransformer;
+  private final EmergencyCareTreatmentsTransformer treatmentsTransformer;
 
   private long attendanceRef;
 
@@ -46,6 +48,10 @@ public class AttendanceOccurrenceTransformer {
     attendanceStructure.setServiceAgreementDetails(transformServiceAgreement(input));
     attendanceStructure.setReferralsToOtherServicesArray(
         referralsToOtherServicesTransformer.transform(input.getReferralRequest()));
+    attendanceStructure.setEmergencyCareInvestigationsSnomedCtArray(
+        investigationsTransformer.transform(input));
+    attendanceStructure.setEmergencyCareTreatmentsSnomedCtArray(
+        treatmentsTransformer.transform(input));
 
     // TODO populate from encounter
     return attendanceStructure;

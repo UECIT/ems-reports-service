@@ -8,16 +8,20 @@ import java.util.Calendar;
 import java.util.Calendar.Builder;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import lombok.experimental.UtilityClass;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
+import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralCategory;
@@ -28,7 +32,9 @@ import uk.nhs.cdss.reports.model.EncounterReportInput.EncounterReportInputBuilde
 import uk.nhs.cdss.reports.service.CounterService;
 import uk.nhs.cdss.reports.transform.ecds.AttendanceOccurrenceTransformer;
 import uk.nhs.cdss.reports.transform.ecds.ECDSReportTransformer;
+import uk.nhs.cdss.reports.transform.ecds.EmergencyCareInvestigationsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTransformer;
+import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTreatmentsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientInformationTransformer;
 import uk.nhs.cdss.reports.transform.ecds.ReferralsToOtherServicesTransformer;
 
@@ -93,6 +99,21 @@ public class Stub {
         new EmergencyCareTransformer(
             new PatientInformationTransformer(),
             new AttendanceOccurrenceTransformer(
-                new ReferralsToOtherServicesTransformer())));
+                new ReferralsToOtherServicesTransformer(),
+                new EmergencyCareInvestigationsTransformer(),
+                new EmergencyCareTreatmentsTransformer())));
+  }
+
+  public static List<Procedure> procedures() {
+    CodeableConcept codeableConcept = new CodeableConcept()
+        .addCoding(new Coding("sys", "9876534", "display"));
+    Procedure procedure = new Procedure()
+        .setStatus(ProcedureStatus.PREPARATION)
+        .addReasonCode(codeableConcept)
+        .setCode(codeableConcept)
+        .setPerformed(new DateTimeType(new GregorianCalendar(2013, Calendar.FEBRUARY, 5, 5, 43, 12)));
+
+    procedure.setIdBase("123");
+    return Collections.singletonList(procedure);
   }
 }

@@ -11,6 +11,7 @@ import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 
@@ -61,5 +62,16 @@ public class FhirSession {
       ref.setResource(resource);
       return resource;
     };
+  }
+
+  public List<Procedure> getProcedures() {
+    String baseUrl = encounterRef.getReferenceElement().getBaseUrl();
+    return fhirContext.newRestfulGenericClient(baseUrl).search()
+        .byUrl("Procedure?context:Encounter=" + encounterRef.getReference())
+        .returnBundle(Bundle.class)
+        .execute()
+        .getEntry().stream()
+        .map(entry -> (Procedure) entry.getResource())
+        .collect(Collectors.toList());
   }
 }

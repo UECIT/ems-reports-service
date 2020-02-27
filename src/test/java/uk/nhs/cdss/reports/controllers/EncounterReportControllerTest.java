@@ -40,6 +40,7 @@ public class EncounterReportControllerTest {
             .session(fhirSession)
             .patient(Stub.patient())
             .referralRequest(Stub.referralRequest())
+            .procedures(Stub.procedures())
             .build()
     );
 
