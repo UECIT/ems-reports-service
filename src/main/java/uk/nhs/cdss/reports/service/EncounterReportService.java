@@ -27,7 +27,6 @@ public class EncounterReportService {
         .map(EncounterParticipantComponent::getIndividual)
         .filter(id -> id.getReferenceElement().getResourceType().equals("Practitioner"))
         .collect(Collectors.toUnmodifiableList());
-    var participants = fhirSession.getParticipants(practitioners);
 
     var patientRef = encounter.getSubject();
     return EncounterReportInput.builder()
@@ -35,7 +34,8 @@ public class EncounterReportService {
         .encounter(encounter)
         .patient(fhirSession.getPatient(patientRef))
         .referralRequest(fhirSession.getReferralRequests())
-        .participants(participants)
+        .participants(fhirSession.getParticipants(practitioners))
+        .procedures(fhirSession.getProcedures())
         .session(fhirSession)
         .build();
   }
