@@ -11,6 +11,7 @@ import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.springframework.stereotype.Component;
+import uk.nhs.cdss.reports.constants.Systems;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.CareProfessionalsEmergencyCare;
@@ -49,7 +50,8 @@ public class AttendanceOccurrenceTransformer {
     attendanceStructure.setServiceAgreementDetails(transformServiceAgreement(input));
     attendanceStructure.setReferralsToOtherServicesArray(
         referralsToOtherServicesTransformer.transform(input.getReferralRequest()));
-    attendanceStructure.setEmergencyCareDiagnosesSnomedCtArray(diagnosesTransformer.transform(input));
+    attendanceStructure
+        .setEmergencyCareDiagnosesSnomedCtArray(diagnosesTransformer.transform(input));
     attendanceStructure.setEmergencyCareInvestigationsSnomedCtArray(
         investigationsTransformer.transform(input));
     attendanceStructure.setEmergencyCareTreatmentsSnomedCtArray(
@@ -75,28 +77,22 @@ public class AttendanceOccurrenceTransformer {
   private ServiceAgreementDetails transformServiceAgreement(EncounterReportInput input) {
     var serviceAgreement = ServiceAgreementDetails.Factory.newInstance();
 
-    //TODO: Revert when serviceProvider populated
-    if (input.getEncounter().hasServiceProvider()) {
-      checkArgument(input.getEncounter().hasServiceProvider(), "Unable to add ServiceAgreement - no Service Provider in Encounter");
-           Organization serviceProvider = input.getSession().getOrganization(input.getEncounter().getServiceProvider());
+    checkArgument(input.getEncounter().hasServiceProvider(),
+        "Unable to add ServiceAgreement - no Service Provider in Encounter");
+    Organization serviceProvider = input.getSession()
+        .getOrganization(input.getEncounter().getServiceProvider());
 
-
-      // TODO Required if present
+    // TODO Required if present
 //    serviceAgreement.setCommissioningSerialNumber("600000");
 
-      // Determine ODS code of supplier, issued by SUS
-      serviceProvider.getIdentifier().stream()
-          .filter(identifier -> identifier.getSystem().equals("ods"))
-          .findFirst()
-          .map(Identifier::getValue)
-          .ifPresent(serviceAgreement::setOrganisationIdentifierCodeOfProvider);
+    // Determine ODS code of supplier, issued by SUS
+    serviceProvider.getIdentifier().stream()
+        .filter(identifier -> identifier.getSystem().equals(Systems.ODS))
+        .findFirst()
+        .map(Identifier::getValue)
+        .ifPresent(serviceAgreement::setOrganisationIdentifierCodeOfProvider);
 
-      // Hardcoded commissioner for this service
-    }
-    else {
-      serviceAgreement.setOrganisationIdentifierCodeOfProvider("50000");
-    }
-
+    // Hardcoded commissioner for this service
     serviceAgreement.setOrganisationIdentifierCodeOfCommissioner(commissionerOrgCode);
     return serviceAgreement;
   }

@@ -27,6 +27,7 @@ import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralCategory;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralPriority;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestStatus;
+import uk.nhs.cdss.reports.constants.Systems;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.model.EncounterReportInput.EncounterReportInputBuilder;
 import uk.nhs.cdss.reports.service.CounterService;
@@ -59,7 +60,7 @@ public class Stub {
     return new Organization()
         .setName("Service Provider")
         .addIdentifier(new Identifier()
-            .setSystem("ods")
+            .setSystem(Systems.ODS)
             .setValue("AA100"));
   }
 
