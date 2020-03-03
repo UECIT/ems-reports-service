@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import lombok.experimental.UtilityClass;
+import org.hl7.fhir.dstu3.model.Address;
+import org.hl7.fhir.dstu3.model.CareConnectPatient;
 import org.hl7.fhir.dstu3.model.CareConnectIdentifier;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
@@ -19,9 +21,9 @@ import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.NHSNumberIdentifier;
 import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Organization;
-import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
@@ -98,16 +100,36 @@ public class Stub {
             .setValue("CC2003XX"));
   }
 
-  public Patient patient() {
-    Patient patient = new Patient()
-        .setBirthDate(new Builder().setDate(2000, 0, 1).build().getTime())
+  public CareConnectPatient patient() {
+    CareConnectPatient patient = new CareConnectPatient();
+    patient.setBirthDate(new Builder().setDate(2000, 0, 1).build().getTime())
         .setGender(AdministrativeGender.FEMALE)
         .addName(new HumanName().addGiven("Jane").setFamily("Doe"))
         .addGeneralPractitioner(new Reference(Stub.practitionerOrg()))
-        .addGeneralPractitioner(new Reference(Stub.practitioner()));
+        .addGeneralPractitioner(new Reference(Stub.practitioner()))
+        .addIdentifier(nhsNumberIdentifierVerified())
+        .addAddress(new Address().setPostalCode("PS1 1AA"));
 
     patient.setIdBase("123");
     return patient;
+  }
+
+  public NHSNumberIdentifier nhsNumberIdentifierUnverified() {
+    NHSNumberIdentifier nhsNumberIdentifier = new NHSNumberIdentifier();
+    nhsNumberIdentifier.setNhsNumberVerificationStatus(
+        new CodeableConcept().addCoding(new Coding(Systems.NHS_NUMBER, "03", "Trace required")))
+          .setValue("0123456789");
+
+    return nhsNumberIdentifier;
+  }
+
+  public NHSNumberIdentifier nhsNumberIdentifierVerified() {
+    NHSNumberIdentifier nhsNumberIdentifier = new NHSNumberIdentifier();
+    nhsNumberIdentifier.setNhsNumberVerificationStatus(
+        new CodeableConcept().addCoding(new Coding(Systems.NHS_NUMBER, "01", "Number present and verified")))
+        .setValue("0123456789");
+
+    return nhsNumberIdentifier;
   }
 
   public List<ReferralRequest> referralRequest() {

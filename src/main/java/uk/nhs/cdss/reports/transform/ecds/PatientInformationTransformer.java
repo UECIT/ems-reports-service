@@ -1,21 +1,23 @@
 package uk.nhs.cdss.reports.transform.ecds;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hl7.fhir.dstu3.model.CareConnectPatient;
+import org.hl7.fhir.dstu3.model.NHSNumberIdentifier;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.springframework.stereotype.Component;
-import uk.nhs.nhsia.datastandards.ecds.NHSNumberStatusIndicatorCodeUnverifiedType;
+import uk.nhs.nhsia.datastandards.ecds.NHSNumberStatusIndicatorCodeUnverifiedType.Enum;
 import uk.nhs.nhsia.datastandards.ecds.NHSNumberStatusIndicatorCodeVerifiedType;
-import uk.nhs.nhsia.datastandards.ecds.NHSNumberStatusIndicatorCodeWithheldType;
 import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.UnverifiedIdentityStructure;
 import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.VerifiedIdentityStructure;
 import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.VerifiedIdentityStructure.DataElementStructure;
-import uk.nhs.nhsia.datastandards.ecds.PatientIdentity.WithheldIdentityStructure;
 import uk.nhs.nhsia.datastandards.ecds.PersonGroupPatientECStructure;
-import uk.nhs.nhsia.datastandards.ecds.WithheldIdentityReasonType;
 
 @Component
+@Slf4j
 public class PatientInformationTransformer {
+
+  private static final String RESIDENCE_RESPONSIBILITY_HIGH_LEVEL = "Q99";
 
   public PersonGroupPatientECStructure transform(Patient patient) {
     var patientStructure = PersonGroupPatientECStructure.Factory.newInstance();
@@ -23,32 +25,37 @@ public class PatientInformationTransformer {
     // Required
     var patientIdentity = patientStructure.addNewPatientIdentity();
 
-    if (patient == null) {
-      patientIdentity.setWithheldIdentityStructure(getWithheldId());
-    } else if (patient instanceof CareConnectPatient && false) { //TODO: NCTH-523 Fix NhsNumberIdentifier Profile
-      // TODO check verification status - NCTH-364
-      patientIdentity.setVerifiedIdentityStructure(getVerifiedId((CareConnectPatient)patient));
+    if (!(patient instanceof CareConnectPatient)) {
+      throw new IllegalArgumentException("Patient must be a CareConnectPatient");
+    }
+
+    CareConnectPatient careConnectPatient = (CareConnectPatient) patient;
+    NHSNumberIdentifier nhsNumber = careConnectPatient.getIdentifierFirstRep();
+    String nhsNumberStatusCode = nhsNumber.getNhsNumberVerificationStatus().getCodingFirstRep().getCode();
+
+    // Could check an 'anonymised' flag and set withheld identity structure
+
+    if ("01".equals(nhsNumberStatusCode)) {
+      patientIdentity.setVerifiedIdentityStructure(getVerifiedId(careConnectPatient));
     }
     else {
-      patientIdentity.setUnverifiedIdentityStructure(getUnverifiedId(patient));
+      patientIdentity.setUnverifiedIdentityStructure(getUnverifiedId(careConnectPatient, nhsNumberStatusCode));
     }
 
     return patientStructure;
   }
 
   private VerifiedIdentityStructure getVerifiedId(CareConnectPatient patient) {
-    // VERIFIED IDENTITY STRUCTURE
-    // Must be used where the NHS NUMBER STATUS INDICATOR CODE National Code = 01 (Number present and verified)
+
     var id = VerifiedIdentityStructure.Factory.newInstance();
     DataElementStructure dataElement = id.addNewDataElementStructure();
 
-    // TODO is LocalIdentifier used? Maybe the FHIR reference of the patient?
-//    LocalIdentifierStructure localIdentifier = id.addNewLocalIdentifierStructure();
-
+    // SCHEMA: requires both the attribute and the element to be present?
+    dataElement.setNHSNumber(patient.getIdentifierFirstRep().getValue());
     id.setNHSNumberStatusIndicatorCode(NHSNumberStatusIndicatorCodeVerifiedType.X_01);
     dataElement.setNHSNumberStatusIndicatorCode(NHSNumberStatusIndicatorCodeVerifiedType.X_01);
-
-    dataElement.setNHSNumber(patient.getIdentifierFirstRep().getValue());
+    dataElement.setPostcodeOfUsualAddress(patient.getAddressFirstRep().getPostalCode());
+    dataElement.setOrganisationIdentifierResidenceResponsibility(RESIDENCE_RESPONSIBILITY_HIGH_LEVEL); // Would be worked out from postcode
     if (patient.hasBirthDate()) {
       dataElement.setPersonBirthDate(DateUtils.toCalendar(patient.getBirthDate()));
     }
@@ -56,41 +63,38 @@ public class PatientInformationTransformer {
     return id;
   }
 
-  private WithheldIdentityStructure getWithheldId() {
-    // WITHHELD IDENTITY STRUCTURE
-    // Must be used where the Commissioning Data Set record has been anonymised
-    var id = WithheldIdentityStructure.Factory.newInstance();
+  private UnverifiedIdentityStructure getUnverifiedId(CareConnectPatient patient,
+      String nhsNumberStatusCode) {
 
-    // 07 -> Number not present and trace not required
-    // SCHEMA: requires both the attribute and the element to be present?
-    id.setNHSNumberStatusIndicatorCode2(NHSNumberStatusIndicatorCodeWithheldType.X_07);
-    id.setNHSNumberStatusIndicatorCode(NHSNumberStatusIndicatorCodeWithheldType.X_07);
-
-    // 97 -> Record anonymised for other reason
-    id.setWithheldIdentityReason(WithheldIdentityReasonType.X_97);
-
-    return id;
-  }
-
-  private UnverifiedIdentityStructure getUnverifiedId(Patient patient) {
-    // UNVERIFIED IDENTITY STRUCTURE
-    // Must be used for all other values of the NHS NUMBER STATUS INDICATOR CODE NOT included in the above
     var id = UnverifiedIdentityStructure.Factory.newInstance();
     var dataElement = id.addNewDataElementStructure();
 
-    // 03 -> Trace required
     // SCHEMA: XML Schema has use=required for the attribute on the id, but also requires the element in the dataElement
-    id.setNHSNumberStatusIndicatorCode(NHSNumberStatusIndicatorCodeUnverifiedType.X_03);
-    dataElement.setNHSNumberStatusIndicatorCode(NHSNumberStatusIndicatorCodeUnverifiedType.X_03);
+    Enum nhsNumberCodeEnum = Enum.forString(nhsNumberStatusCode);
+    id.setNHSNumberStatusIndicatorCode(nhsNumberCodeEnum);
+    dataElement.setNHSNumberStatusIndicatorCode(nhsNumberCodeEnum);
 
-    var name = dataElement.addNewPatientName().addNewPersonNameStructured();
-    var nameFirstRep = patient.getNameFirstRep();
-    name.setPersonGivenName(nameFirstRep.getGivenAsSingleString());
-    name.setPersonFamilyName(nameFirstRep.getFamily());
+    if (patient.getIdentifierFirstRep().hasValue()) {
+      dataElement.setNHSNumber(patient.getIdentifierFirstRep().getValue());
+    }
 
-    if (patient.hasBirthDate()) {
+    if (patient.hasName()) {
+      var name = dataElement.addNewPatientName().addNewPersonNameStructured();
+      var nameFirstRep = patient.getNameFirstRep();
+      name.setPersonGivenName(nameFirstRep.getGivenAsSingleString());
+      name.setPersonFamilyName(nameFirstRep.getFamily());
+    }
+
+    if (patient.hasBirthDate() || patient.getAddressFirstRep().hasPostalCode()) {
       var dataElement2 = id.addNewDataElementStructure2();
-      dataElement2.setPersonBirthDate(DateUtils.toCalendar(patient.getBirthDate()));
+
+      if (patient.hasBirthDate()) {
+        dataElement2.setPersonBirthDate(DateUtils.toCalendar(patient.getBirthDate()));
+      }
+      else {
+        dataElement2.setPostcodeOfUsualAddress(patient.getAddressFirstRep().getPostalCode());
+      }
+      dataElement2.setOrganisationIdentifierResidenceResponsibility(RESIDENCE_RESPONSIBILITY_HIGH_LEVEL);
     }
 
     return id;

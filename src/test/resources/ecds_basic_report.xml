@@ -29,20 +29,15 @@
     <ns:EmergencyCare>
       <ns:PersonGroupPatient>
         <ns:PatientIdentity>
-          <ns:UnverifiedIdentity_Structure NHSNumberStatusIndicatorCode="03">
+          <ns:VerifiedIdentity_Structure NHSNumberStatusIndicatorCode="01">
             <ns:DataElementStructure>
-              <ns:NHSNumberStatusIndicatorCode>03</ns:NHSNumberStatusIndicatorCode>
-              <ns:PatientName>
-                <ns:PersonName_Structured>
-                  <ns:PersonGivenName>Jane</ns:PersonGivenName>
-                  <ns:PersonFamilyName>Doe</ns:PersonFamilyName>
-                </ns:PersonName_Structured>
-              </ns:PatientName>
-            </ns:DataElementStructure>
-            <ns:DataElementStructure2>
+              <ns:NHSNumber>0123456789</ns:NHSNumber>
+              <ns:NHSNumberStatusIndicatorCode>01</ns:NHSNumberStatusIndicatorCode>
+              <ns:PostcodeOfUsualAddress>PS1 1AA</ns:PostcodeOfUsualAddress>
+              <ns:OrganisationIdentifier_ResidenceResponsibility>Q99</ns:OrganisationIdentifier_ResidenceResponsibility>
               <ns:PersonBirthDate>2000-01-01Z</ns:PersonBirthDate>
-            </ns:DataElementStructure2>
-          </ns:UnverifiedIdentity_Structure>
+            </ns:DataElementStructure>
+          </ns:VerifiedIdentity_Structure>
         </ns:PatientIdentity>
       </ns:PersonGroupPatient>
       <ns:GPRegistration>
