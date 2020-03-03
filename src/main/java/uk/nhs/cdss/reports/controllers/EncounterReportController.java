@@ -58,6 +58,7 @@ public class EncounterReportController {
           .body(reportsDTO);
 
     } catch (TransformationException | IOException e) {
+      log.error("Transformation failed:\n{}", e.getMessage());
       throw new ServerErrorException("Transformation failed: " + e.getMessage(), e);
     }
   }

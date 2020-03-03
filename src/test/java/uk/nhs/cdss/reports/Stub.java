@@ -20,6 +20,7 @@ import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
 import org.hl7.fhir.dstu3.model.Reference;
@@ -37,6 +38,7 @@ import uk.nhs.cdss.reports.transform.ecds.EmergencyCareDiagnosesTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareInvestigationsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTreatmentsTransformer;
+import uk.nhs.cdss.reports.transform.ecds.GPRegistrationTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientInformationTransformer;
 import uk.nhs.cdss.reports.transform.ecds.ReferralsToOtherServicesTransformer;
 
@@ -64,11 +66,31 @@ public class Stub {
             .setValue("AA100"));
   }
 
+  public Organization practitionerOrg() {
+    return new Organization()
+        .setName("General Practice")
+        .addIdentifier(new Identifier()
+            .setSystem(Systems.ODS)
+            .setValue("BB2003"));
+  }
+
+  public Practitioner practitioner() {
+    return new Practitioner()
+        .addName(new HumanName()
+          .addGiven("Don")
+          .setFamily("Quixote"))
+        .addIdentifier(new Identifier()
+            .setSystem(Systems.ODS)
+            .setValue("CC2003XX"));
+  }
+
   public Patient patient() {
     Patient patient = new Patient()
         .setBirthDate(new Builder().setDate(2000, 0, 1).build().getTime())
         .setGender(AdministrativeGender.FEMALE)
-        .addName(new HumanName().addGiven("Jane").setFamily("Doe"));
+        .addName(new HumanName().addGiven("Jane").setFamily("Doe"))
+        .addGeneralPractitioner(new Reference(Stub.practitionerOrg()))
+        .addGeneralPractitioner(new Reference(Stub.practitioner()));
 
     patient.setIdBase("123");
     return patient;
@@ -104,7 +126,8 @@ public class Stub {
                 new ReferralsToOtherServicesTransformer(),
                 new EmergencyCareDiagnosesTransformer(Stub.counterService()),
                 new EmergencyCareInvestigationsTransformer(),
-                new EmergencyCareTreatmentsTransformer())));
+                new EmergencyCareTreatmentsTransformer()),
+            new GPRegistrationTransformer()));
   }
 
   public static List<Procedure> procedures() {

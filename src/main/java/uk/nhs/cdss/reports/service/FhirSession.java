@@ -45,6 +45,10 @@ public class FhirSession {
     return fhirReader(Organization.class).apply(id);
   }
 
+  public Practitioner getPractitioner(Reference id) {
+    return fhirReader(Practitioner.class).apply(id);
+  }
+
   public Condition getCondition(Reference id) {
     return fhirReader(Condition.class).apply(id);
   }
@@ -79,4 +83,5 @@ public class FhirSession {
         .map(entry -> (Procedure) entry.getResource())
         .collect(Collectors.toList());
   }
+
 }

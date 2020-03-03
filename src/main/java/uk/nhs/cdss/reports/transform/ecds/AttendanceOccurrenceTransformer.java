@@ -11,8 +11,8 @@ import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.springframework.stereotype.Component;
-import uk.nhs.cdss.reports.constants.Systems;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
+import uk.nhs.cdss.reports.util.IdentifierUtil;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.CareProfessionalsEmergencyCare;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.EmergencyCareAttendanceActivityCharacteristics;
@@ -44,8 +44,8 @@ public class AttendanceOccurrenceTransformer {
     // Required
     attendanceStructure.setEmergencyCareAttendanceActivityCharacteristics(
         transformActivity(input.getDateOfPreparation()));
-//    attendanceStructure.setCareProfessionalsEmergencyCareArray(
-//        transformProfessionals(input.getParticipants())); TODO: NCTH-522 Fix CareConnectPractitioner/Identifier profile
+    attendanceStructure.setCareProfessionalsEmergencyCareArray(
+        transformProfessionals(input.getParticipants()));
 
     attendanceStructure.setServiceAgreementDetails(transformServiceAgreement(input));
     attendanceStructure.setReferralsToOtherServicesArray(
@@ -86,10 +86,7 @@ public class AttendanceOccurrenceTransformer {
 //    serviceAgreement.setCommissioningSerialNumber("600000");
 
     // Determine ODS code of supplier, issued by SUS
-    serviceProvider.getIdentifier().stream()
-        .filter(identifier -> identifier.getSystem().equals(Systems.ODS))
-        .findFirst()
-        .map(Identifier::getValue)
+    IdentifierUtil.getOdsCode(serviceProvider)
         .ifPresent(serviceAgreement::setOrganisationIdentifierCodeOfProvider);
 
     // Hardcoded commissioner for this service
