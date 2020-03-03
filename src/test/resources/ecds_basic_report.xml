@@ -55,10 +55,24 @@
           <ns:EmergencyCareArrivalTime>00:00:00</ns:EmergencyCareArrivalTime>
           <ns:AgeAtCdsActivityDate>20</ns:AgeAtCdsActivityDate>
         </ns:EmergencyCareAttendanceActivityCharacteristics>
+        <ns:PatientClinicalHistory>
+          <ns:Comorbidity_SnomedCt>282828</ns:Comorbidity_SnomedCt>
+          <ns:Comorbidity_SnomedCt>828282</ns:Comorbidity_SnomedCt>
+        </ns:PatientClinicalHistory>
         <ns:ServiceAgreementDetails>
           <ns:OrganisationIdentifier_CodeOfProvider>AA100</ns:OrganisationIdentifier_CodeOfProvider>
           <ns:OrganisationIdentifier_CodeOfCommissioner>2BB00</ns:OrganisationIdentifier_CodeOfCommissioner>
         </ns:ServiceAgreementDetails>
+        <ns:EmergencyCareDiagnoses_SnomedCt>
+          <ns:EmergencyCareDiagnosis_SnomedCt>282828</ns:EmergencyCareDiagnosis_SnomedCt>
+          <ns:CodedClinicalEntrySequenceNumber>1</ns:CodedClinicalEntrySequenceNumber>
+          <ns:EmergencyCareDiagnosisQualifier_SnomedCt>9929229</ns:EmergencyCareDiagnosisQualifier_SnomedCt>
+        </ns:EmergencyCareDiagnoses_SnomedCt>
+        <ns:EmergencyCareDiagnoses_SnomedCt>
+          <ns:EmergencyCareDiagnosis_SnomedCt>282828</ns:EmergencyCareDiagnosis_SnomedCt>
+          <ns:CodedClinicalEntrySequenceNumber>1</ns:CodedClinicalEntrySequenceNumber>
+          <ns:EmergencyCareDiagnosisQualifier_SnomedCt>9929229</ns:EmergencyCareDiagnosisQualifier_SnomedCt>
+        </ns:EmergencyCareDiagnoses_SnomedCt>
       </ns:AttendanceOccurrence>
     </ns:EmergencyCare>
     <ns:CDSMessageTrailer>

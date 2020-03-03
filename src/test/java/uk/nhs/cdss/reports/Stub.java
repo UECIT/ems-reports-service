@@ -3,6 +3,7 @@ package uk.nhs.cdss.reports;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.nhs.cdss.reports.constants.Systems.DIAGNOSIS_ROLE;
 
 import java.util.Calendar;
 import java.util.Calendar.Builder;
@@ -16,8 +17,10 @@ import org.hl7.fhir.dstu3.model.CareConnectPatient;
 import org.hl7.fhir.dstu3.model.CareConnectIdentifier;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
@@ -43,6 +46,7 @@ import uk.nhs.cdss.reports.transform.ecds.EmergencyCareInvestigationsTransformer
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTreatmentsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.GPRegistrationTransformer;
+import uk.nhs.cdss.reports.transform.ecds.PatientClinicalHistoryTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientInformationTransformer;
 import uk.nhs.cdss.reports.transform.ecds.ReferralsToOtherServicesTransformer;
 
@@ -54,12 +58,37 @@ public class Stub {
         .dateOfPreparation(new Calendar.Builder()
             .setDate(2020, 0, 1)
             .build())
-        .encounter(encounter());
+        .encounter(minimumEncounter());
+  }
+
+  private Encounter minimumEncounter() {
+    return new Encounter()
+        .setServiceProvider(new Reference(serviceProvider()));
   }
 
   public Encounter encounter() {
     return new Encounter()
-        .setServiceProvider(new Reference(serviceProvider()));
+        .setServiceProvider(new Reference(serviceProvider()))
+        .addDiagnosis(new DiagnosisComponent(new Reference(condition()))
+          .setRole(new CodeableConcept()
+            .addCoding(new Coding(DIAGNOSIS_ROLE, "CM", "Comorbidity diagnosis"))))
+        .addDiagnosis(new DiagnosisComponent(new Reference(condition()))) //NOT CM
+        .addDiagnosis(new DiagnosisComponent(new Reference(procedure()))
+          .setRole(new CodeableConcept()
+              .addCoding(new Coding(DIAGNOSIS_ROLE, "CM", "Comorbidity diagnosis"))))
+        .addDiagnosis(new DiagnosisComponent(new Reference(procedure()))); //NOT CM
+  }
+
+  private Condition condition() {
+    return new Condition()
+        .setCode(new CodeableConcept()
+          .addCoding(new Coding("system", "282828", "Comorbid")));
+  }
+
+  private Procedure procedure() {
+    return new Procedure()
+        .setCode(new CodeableConcept()
+            .addCoding(new Coding("system", "828282", "Comorbid")));
   }
 
   public static Location location() {
@@ -162,7 +191,8 @@ public class Stub {
                 new ReferralsToOtherServicesTransformer(),
                 new EmergencyCareDiagnosesTransformer(Stub.counterService()),
                 new EmergencyCareInvestigationsTransformer(),
-                new EmergencyCareTreatmentsTransformer()),
+                new EmergencyCareTreatmentsTransformer(),
+                new PatientClinicalHistoryTransformer()),
             new GPRegistrationTransformer()));
   }
 
