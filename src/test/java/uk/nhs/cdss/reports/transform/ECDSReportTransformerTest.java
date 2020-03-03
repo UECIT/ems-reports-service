@@ -4,7 +4,9 @@ import ca.uhn.fhir.context.FhirContext;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
+import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,7 +51,9 @@ public class ECDSReportTransformerTest {
   public void basic_report_input() throws IOException, TransformationException {
     EncounterReportInput encounterReportInput = Stub.input()
         .session(fhirSession)
-        .encounter(Stub.encounter())
+        .encounter(Stub.encounter()
+            .setLocation(
+                List.of(new EncounterLocationComponent(new Reference(Stub.location())))))
         .patient(Stub.patient())
         .build();
 

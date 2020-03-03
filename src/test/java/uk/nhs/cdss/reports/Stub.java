@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import lombok.experimental.UtilityClass;
+import org.hl7.fhir.dstu3.model.CareConnectIdentifier;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.DateTimeType;
@@ -18,6 +19,7 @@ import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -58,6 +60,18 @@ public class Stub {
         .setServiceProvider(new Reference(serviceProvider()));
   }
 
+  public static Location location() {
+    return new Location()
+        .setName("Location")
+        .setType(new CodeableConcept()
+            .addCoding(new Coding()
+                .setSystem("http://hl7.org/fhir/ValueSet/v3-ServiceDeliveryLocationRoleType")
+                .setCode("ER")))
+        .addIdentifier(new CareConnectIdentifier()
+            .setSystem(Systems.ODS)
+            .setValue("ODSLoc"));
+  }
+
   public Organization serviceProvider() {
     return new Organization()
         .setName("Service Provider")
@@ -77,8 +91,8 @@ public class Stub {
   public Practitioner practitioner() {
     return new Practitioner()
         .addName(new HumanName()
-          .addGiven("Don")
-          .setFamily("Quixote"))
+            .addGiven("Don")
+            .setFamily("Quixote"))
         .addIdentifier(new Identifier()
             .setSystem(Systems.ODS)
             .setValue("CC2003XX"));
@@ -105,7 +119,7 @@ public class Stub {
         .setServiceRequested(Collections.singletonList(new CodeableConcept()
             .addCoding(new Coding("sys", "1234567", "display"))))
         .setReasonCode(Collections.singletonList(new CodeableConcept()
-          .addCoding(new Coding("sys", "reason", "display"))));
+            .addCoding(new Coding("sys", "reason", "display"))));
 
     referralRequest.setIdBase("123");
     return Collections.singletonList(referralRequest);
@@ -137,9 +151,11 @@ public class Stub {
         .setStatus(ProcedureStatus.PREPARATION)
         .addReasonCode(codeableConcept)
         .setCode(codeableConcept)
-        .setPerformed(new DateTimeType(new GregorianCalendar(2013, Calendar.FEBRUARY, 5, 5, 43, 12)));
+        .setPerformed(
+            new DateTimeType(new GregorianCalendar(2013, Calendar.FEBRUARY, 5, 5, 43, 12)));
 
     procedure.setIdBase("123");
     return Collections.singletonList(procedure);
   }
+
 }

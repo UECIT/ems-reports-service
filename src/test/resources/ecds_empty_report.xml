@@ -36,8 +36,8 @@
         </ns:PatientIdentity>
       </ns:PersonGroupPatient>
       <ns:EmergencyCareAttendanceLocation>
-        <ns:OrganisationSiteIdentifier_OfTreatment>900000000</ns:OrganisationSiteIdentifier_OfTreatment>
-        <ns:EmergencyCareDepartmentType>01</ns:EmergencyCareDepartmentType>
+        <ns:OrganisationSiteIdentifier_OfTreatment>R9998</ns:OrganisationSiteIdentifier_OfTreatment>
+        <ns:EmergencyCareDepartmentType>04</ns:EmergencyCareDepartmentType>
       </ns:EmergencyCareAttendanceLocation>
       <ns:AttendanceOccurrence>
         <ns:EmergencyCareAttendanceActivityCharacteristics>

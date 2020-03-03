@@ -50,7 +50,7 @@
         <ns:GeneralPractice_PatientRegistration>BB2003</ns:GeneralPractice_PatientRegistration>
       </ns:GPRegistration>
       <ns:EmergencyCareAttendanceLocation>
-        <ns:OrganisationSiteIdentifier_OfTreatment>900000000</ns:OrganisationSiteIdentifier_OfTreatment>
+        <ns:OrganisationSiteIdentifier_OfTreatment>ODSLoc</ns:OrganisationSiteIdentifier_OfTreatment>
         <ns:EmergencyCareDepartmentType>01</ns:EmergencyCareDepartmentType>
       </ns:EmergencyCareAttendanceLocation>
       <ns:AttendanceOccurrence>
