@@ -9,6 +9,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DomainResource;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -26,37 +27,8 @@ public class FhirSession {
     return fhirReader(Encounter.class).apply(encounterRef);
   }
 
-  public List<ReferralRequest> getReferralRequests() {
-    String baseUrl = encounterRef.getReferenceElement().getBaseUrl();
-    return fhirContext.newRestfulGenericClient(baseUrl).search()
-        .byUrl("ReferralRequest?context:Encounter=" + encounterRef.getReference())
-        .returnBundle(Bundle.class)
-        .execute()
-        .getEntry().stream()
-        .map(entry -> (ReferralRequest) entry.getResource())
-        .collect(Collectors.toList());
-  }
-
-  public Patient getPatient(Reference id) {
-    return fhirReader(Patient.class).apply(id);
-  }
-
-  public Organization getOrganization(Reference id) {
-    return fhirReader(Organization.class).apply(id);
-  }
-
-  public Practitioner getPractitioner(Reference id) {
-    return fhirReader(Practitioner.class).apply(id);
-  }
-
-  public Condition getCondition(Reference id) {
-    return fhirReader(Condition.class).apply(id);
-  }
-
-  public List<Practitioner> getParticipants(List<Reference> participants) {
-    return participants.stream()
-        .map(fhirReader(Practitioner.class))
-        .collect(Collectors.toUnmodifiableList());
+  private String getBaseUrl() {
+    return encounterRef.getReferenceElement().getBaseUrl();
   }
 
   private <T extends DomainResource> Function<Reference, T> fhirReader(Class<T> type) {
@@ -64,7 +36,7 @@ public class FhirSession {
       if (type.isInstance(ref.getResource())) {
         return type.cast(ref.getResource());
       }
-      String baseUrl = encounterRef.getReferenceElement().getBaseUrl();
+      String baseUrl = getBaseUrl();
       T resource = fhirContext.newRestfulGenericClient(baseUrl)
           .read().resource(type)
           .withUrl(ref.getReferenceElement()).execute();
@@ -73,9 +45,40 @@ public class FhirSession {
     };
   }
 
+  public List<ReferralRequest> getReferralRequests() {
+    return fhirContext.newRestfulGenericClient(getBaseUrl()).search()
+        .byUrl("ReferralRequest?context:Encounter=" + encounterRef.getReference())
+        .returnBundle(Bundle.class)
+        .execute()
+        .getEntry().stream()
+        .map(entry -> (ReferralRequest) entry.getResource())
+        .collect(Collectors.toList());
+  }
+
+  public Patient getPatient(Reference ref) {
+    return fhirReader(Patient.class).apply(ref);
+  }
+
+  public Organization getOrganization(Reference ref) {
+    return fhirReader(Organization.class).apply(ref);
+  }
+
+  public Practitioner getPractitioner(Reference ref) {
+    return fhirReader(Practitioner.class).apply(ref);
+  }
+
+  public Condition getCondition(Reference ref) {
+    return fhirReader(Condition.class).apply(ref);
+  }
+
+  public List<Practitioner> getParticipants(List<Reference> participants) {
+    return participants.stream()
+        .map(fhirReader(Practitioner.class))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
   public List<Procedure> getProcedures() {
-    String baseUrl = encounterRef.getReferenceElement().getBaseUrl();
-    return fhirContext.newRestfulGenericClient(baseUrl).search()
+    return fhirContext.newRestfulGenericClient(getBaseUrl()).search()
         .byUrl("Procedure?context:Encounter=" + encounterRef.getReference())
         .returnBundle(Bundle.class)
         .execute()
@@ -84,4 +87,7 @@ public class FhirSession {
         .collect(Collectors.toList());
   }
 
+  public Location getLocation(Reference ref) {
+    return fhirReader(Location.class).apply(ref);
+  }
 }
