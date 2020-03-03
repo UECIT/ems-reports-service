@@ -6,6 +6,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
+import org.hl7.fhir.dstu3.model.CareConnectPatient;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.junit.Assert;
@@ -37,6 +38,8 @@ public class ECDSReportTransformerTest {
   public void empty_report_input() throws IOException, TransformationException {
     EncounterReportInput encounterReportInput = Stub.input()
         .session(fhirSession)
+        .patient(new CareConnectPatient()
+          .addIdentifier(Stub.nhsNumberIdentifierUnverified()))
         .build();
 
     CDSXMLInterchangeDocument output = Stub.ecdsTransformer()
