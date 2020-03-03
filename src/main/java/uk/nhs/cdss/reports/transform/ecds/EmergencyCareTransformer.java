@@ -13,6 +13,7 @@ public class EmergencyCareTransformer {
 
   private final PatientInformationTransformer patientTransformer;
   private final AttendanceOccurrenceTransformer attendanceOccurrenceTransformer;
+  private final GPRegistrationTransformer gpRegistrationTransformer;
 
   public EmergencyCareStucture transform(EncounterReportInput input) {
 
@@ -21,6 +22,9 @@ public class EmergencyCareTransformer {
     emergencyCare.setPersonGroupPatient(patientTransformer.transform(input.getPatient()));
     emergencyCare.setEmergencyCareAttendanceLocation(getAttendanceLocation());
     emergencyCare.setAttendanceOccurrence(attendanceOccurrenceTransformer.transform(input));
+
+    gpRegistrationTransformer.transform(input)
+        .ifPresent(emergencyCare::setGPRegistration);
 
     return emergencyCare;
   }

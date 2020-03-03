@@ -4,6 +4,6 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Systems {
-  public String ODS = "https://fhir.nhs.uk/Id/ods-organization-code";
+  public final String ODS = "https://fhir.nhs.uk/Id/ods-organization-code";
 
 }
