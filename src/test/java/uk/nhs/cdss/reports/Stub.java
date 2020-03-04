@@ -13,8 +13,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import lombok.experimental.UtilityClass;
 import org.hl7.fhir.dstu3.model.Address;
-import org.hl7.fhir.dstu3.model.CareConnectPatient;
 import org.hl7.fhir.dstu3.model.CareConnectIdentifier;
+import org.hl7.fhir.dstu3.model.CareConnectPatient;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
@@ -24,9 +24,10 @@ import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
-import org.hl7.fhir.dstu3.model.NHSNumberIdentifier;
 import org.hl7.fhir.dstu3.model.Location;
+import org.hl7.fhir.dstu3.model.NHSNumberIdentifier;
 import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Period;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
@@ -39,6 +40,7 @@ import uk.nhs.cdss.reports.constants.Systems;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.model.EncounterReportInput.EncounterReportInputBuilder;
 import uk.nhs.cdss.reports.service.CounterService;
+import uk.nhs.cdss.reports.transform.ecds.AttendanceActivityCharacteristicsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.AttendanceOccurrenceTransformer;
 import uk.nhs.cdss.reports.transform.ecds.ECDSReportTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareDiagnosesTransformer;
@@ -53,36 +55,47 @@ import uk.nhs.cdss.reports.transform.ecds.ReferralsToOtherServicesTransformer;
 @UtilityClass
 public class Stub {
 
+  public static final Calendar CALENDAR = new Builder()
+      .setDate(2020, 0, 1)
+      .build();
+
   public EncounterReportInputBuilder input() {
     return EncounterReportInput.builder()
-        .dateOfPreparation(new Calendar.Builder()
-            .setDate(2020, 0, 1)
-            .build())
+        .dateOfPreparation(CALENDAR)
         .encounter(minimumEncounter());
   }
 
   private Encounter minimumEncounter() {
-    return new Encounter()
-        .setServiceProvider(new Reference(serviceProvider()));
+    Encounter encounter = new Encounter();
+    encounter
+        .setServiceProvider(new Reference(serviceProvider()))
+        .setId("123");
+
+    return encounter;
   }
 
   public Encounter encounter() {
-    return new Encounter()
+    Encounter encounter = new Encounter();
+    encounter
+        .setPeriod(new Period().setStart(CALENDAR.getTime()))
         .setServiceProvider(new Reference(serviceProvider()))
         .addDiagnosis(new DiagnosisComponent(new Reference(condition()))
-          .setRole(new CodeableConcept()
-            .addCoding(new Coding(DIAGNOSIS_ROLE, "CM", "Comorbidity diagnosis"))))
+            .setRole(new CodeableConcept()
+                .addCoding(new Coding(DIAGNOSIS_ROLE, "CM", "Comorbidity diagnosis"))))
         .addDiagnosis(new DiagnosisComponent(new Reference(condition()))) //NOT CM
         .addDiagnosis(new DiagnosisComponent(new Reference(procedure()))
-          .setRole(new CodeableConcept()
-              .addCoding(new Coding(DIAGNOSIS_ROLE, "CM", "Comorbidity diagnosis"))))
-        .addDiagnosis(new DiagnosisComponent(new Reference(procedure()))); //NOT CM
+            .setRole(new CodeableConcept()
+                .addCoding(new Coding(DIAGNOSIS_ROLE, "CM", "Comorbidity diagnosis"))))
+        .addDiagnosis(new DiagnosisComponent(new Reference(procedure()))) //NOT CM
+        .setId("123");
+
+    return encounter;
   }
 
   private Condition condition() {
     return new Condition()
         .setCode(new CodeableConcept()
-          .addCoding(new Coding("system", "282828", "Comorbid")));
+            .addCoding(new Coding("system", "282828", "Comorbid")));
   }
 
   private Procedure procedure() {
@@ -147,7 +160,7 @@ public class Stub {
     NHSNumberIdentifier nhsNumberIdentifier = new NHSNumberIdentifier();
     nhsNumberIdentifier.setNhsNumberVerificationStatus(
         new CodeableConcept().addCoding(new Coding(Systems.NHS_NUMBER, "03", "Trace required")))
-          .setValue("0123456789");
+        .setValue("0123456789");
 
     return nhsNumberIdentifier;
   }
@@ -155,7 +168,8 @@ public class Stub {
   public NHSNumberIdentifier nhsNumberIdentifierVerified() {
     NHSNumberIdentifier nhsNumberIdentifier = new NHSNumberIdentifier();
     nhsNumberIdentifier.setNhsNumberVerificationStatus(
-        new CodeableConcept().addCoding(new Coding(Systems.NHS_NUMBER, "01", "Number present and verified")))
+        new CodeableConcept()
+            .addCoding(new Coding(Systems.NHS_NUMBER, "01", "Number present and verified")))
         .setValue("0123456789");
 
     return nhsNumberIdentifier;
@@ -170,7 +184,10 @@ public class Stub {
         .setServiceRequested(Collections.singletonList(new CodeableConcept()
             .addCoding(new Coding("sys", "1234567", "display"))))
         .setReasonCode(Collections.singletonList(new CodeableConcept()
-            .addCoding(new Coding("sys", "reason", "display"))));
+            .addCoding(new Coding("sys", "reason", "display"))))
+        .setReasonReference(List.of(new Reference(new Condition()
+            .setCode(new CodeableConcept()
+                .addCoding(new Coding(Systems.SNOMED, "01010101", "display"))))));
 
     referralRequest.setIdBase("123");
     return Collections.singletonList(referralRequest);
@@ -192,6 +209,7 @@ public class Stub {
                 new EmergencyCareDiagnosesTransformer(Stub.counterService()),
                 new EmergencyCareInvestigationsTransformer(),
                 new EmergencyCareTreatmentsTransformer(),
+                new AttendanceActivityCharacteristicsTransformer(),
                 new PatientClinicalHistoryTransformer()),
             new GPRegistrationTransformer()));
   }

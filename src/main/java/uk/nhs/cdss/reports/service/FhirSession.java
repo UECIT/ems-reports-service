@@ -36,8 +36,7 @@ public class FhirSession {
       if (type.isInstance(ref.getResource())) {
         return type.cast(ref.getResource());
       }
-      String baseUrl = getBaseUrl();
-      T resource = fhirContext.newRestfulGenericClient(baseUrl)
+      T resource = fhirContext.newRestfulGenericClient(getBaseUrl())
           .read().resource(type)
           .withUrl(ref.getReferenceElement()).execute();
       ref.setResource(resource);
