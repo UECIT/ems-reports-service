@@ -35,6 +35,7 @@ public class AttendanceOccurrenceTransformer {
   private final EmergencyCareDiagnosesTransformer diagnosesTransformer;
   private final EmergencyCareInvestigationsTransformer investigationsTransformer;
   private final EmergencyCareTreatmentsTransformer treatmentsTransformer;
+  private final PatientClinicalHistoryTransformer clinicalHistoryTransformer;
 
   private long attendanceRef;
 
@@ -56,6 +57,9 @@ public class AttendanceOccurrenceTransformer {
         investigationsTransformer.transform(input));
     attendanceStructure.setEmergencyCareTreatmentsSnomedCtArray(
         treatmentsTransformer.transform(input));
+
+    clinicalHistoryTransformer.transform(input)
+        .ifPresent(attendanceStructure::setPatientClinicalHistory);
 
     // TODO populate from encounter
     return attendanceStructure;

@@ -77,6 +77,10 @@ public class FhirSession {
         .collect(Collectors.toUnmodifiableList());
   }
 
+  public Procedure getProcedure(Reference ref) {
+    return fhirReader(Procedure.class).apply(ref);
+  }
+
   public List<Procedure> getProcedures() {
     return fhirContext.newRestfulGenericClient(getBaseUrl()).search()
         .byUrl("Procedure?context:Encounter=" + encounterRef.getReference())

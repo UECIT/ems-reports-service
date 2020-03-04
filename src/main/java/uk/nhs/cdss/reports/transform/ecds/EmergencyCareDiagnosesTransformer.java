@@ -1,5 +1,7 @@
 package uk.nhs.cdss.reports.transform.ecds;
 
+import static uk.nhs.cdss.reports.util.ReferenceUtil.ofType;
+
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
@@ -19,6 +21,7 @@ public class EmergencyCareDiagnosesTransformer {
     FhirSession session = input.getSession();
     return input.getEncounter().getDiagnosis().stream()
         .map(DiagnosisComponent::getCondition)
+        .filter(ofType(Condition.class))
         .map(session::getCondition)
         .map(this::transform)
         .toArray(EmergencyCareDiagnosesSnomedCt[]::new);
