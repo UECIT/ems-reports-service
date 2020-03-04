@@ -2,14 +2,11 @@ package uk.nhs.cdss.reports.config;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
-import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.parser.StrictErrorHandler;
-import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.util.Arrays;
 import java.util.List;
 import org.hl7.fhir.dstu3.model.CareConnectCarePlan;
 import org.hl7.fhir.dstu3.model.CareConnectCareTeam;
-import org.hl7.fhir.dstu3.model.CareConnectCondition;
 import org.hl7.fhir.dstu3.model.CareConnectEncounter;
 import org.hl7.fhir.dstu3.model.CareConnectEpisodeOfCare;
 import org.hl7.fhir.dstu3.model.CareConnectHealthcareService;
@@ -26,7 +23,6 @@ import org.hl7.fhir.dstu3.model.CareConnectRelatedPerson;
 import org.hl7.fhir.dstu3.model.CareConnectSpecimen;
 import org.hl7.fhir.dstu3.model.CoordinateResource;
 import org.hl7.fhir.dstu3.model.Resource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -41,7 +37,6 @@ public class FhirConfig {
     List<Class<? extends Resource>> profiles = Arrays.asList(
         CareConnectCarePlan.class,
         CareConnectCareTeam.class,
-        CareConnectCondition.class,
         CareConnectEncounter.class,
         CareConnectEpisodeOfCare.class,
         CareConnectHealthcareService.class,
