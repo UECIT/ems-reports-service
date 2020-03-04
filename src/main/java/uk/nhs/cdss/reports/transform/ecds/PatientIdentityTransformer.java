@@ -49,7 +49,14 @@ public class PatientIdentityTransformer {
     dataElement.setNHSNumber(patient.getIdentifierFirstRep().getValue());
     id.setNHSNumberStatusIndicatorCode(NHSNumberStatusIndicatorCodeVerifiedType.X_01);
     dataElement.setNHSNumberStatusIndicatorCode(NHSNumberStatusIndicatorCodeVerifiedType.X_01);
-    dataElement.setPostcodeOfUsualAddress(patient.getAddressFirstRep().getPostalCode());
+
+    if (patient.getAddressFirstRep().hasPostalCode()) {
+      dataElement.setPostcodeOfUsualAddress(patient.getAddressFirstRep().getPostalCode());
+    }
+    else {
+      dataElement.setPostcodeOfUsualAddress("DE9 XXX"); //TODO-NCTH-548 to remove this.
+    }
+
     dataElement.setOrganisationIdentifierResidenceResponsibility(RESIDENCE_RESPONSIBILITY_HIGH_LEVEL); // Would be worked out from postcode
     if (patient.hasBirthDate()) {
       dataElement.setPersonBirthDate(DateUtils.toCalendar(patient.getBirthDate()));
