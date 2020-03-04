@@ -35,6 +35,7 @@ public class AttendanceOccurrenceTransformer {
   private final EmergencyCareDiagnosesTransformer diagnosesTransformer;
   private final EmergencyCareInvestigationsTransformer investigationsTransformer;
   private final EmergencyCareTreatmentsTransformer treatmentsTransformer;
+  private final AttendanceActivityCharacteristicsTransformer activityTransformer;
   private final PatientClinicalHistoryTransformer clinicalHistoryTransformer;
 
   private long attendanceRef;
@@ -44,7 +45,7 @@ public class AttendanceOccurrenceTransformer {
 
     // Required
     attendanceStructure.setEmergencyCareAttendanceActivityCharacteristics(
-        transformActivity(input.getDateOfPreparation()));
+        activityTransformer.transformActivity(input));
     attendanceStructure.setCareProfessionalsEmergencyCareArray(
         transformProfessionals(input.getParticipants()));
 
@@ -63,19 +64,6 @@ public class AttendanceOccurrenceTransformer {
 
     // TODO populate from encounter
     return attendanceStructure;
-  }
-
-  private EmergencyCareAttendanceActivityCharacteristics transformActivity(Calendar date) {
-    var activity = EmergencyCareAttendanceActivityCharacteristics.Factory.newInstance();
-
-    activity.setEmergencyCareAttendanceIdentifier(Long.toString(++attendanceRef));
-    activity
-        .xsetEmergencyCareArrivalDate(DateTimeFormatter.formatDate(date, DateType.type)); // TODO
-    activity
-        .xsetEmergencyCareArrivalTime(DateTimeFormatter.formatTime(date, TimeType.type)); // TODO
-    activity.setAgeAtCdsActivityDate(20); // TODO
-
-    return activity;
   }
 
   private ServiceAgreementDetails transformServiceAgreement(EncounterReportInput input) {
