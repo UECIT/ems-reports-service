@@ -15,12 +15,13 @@ public class ReferenceUtil {
    */
   public static Predicate<Reference> ofType(Class<? extends DomainResource> type) {
     return ref -> {
-      if (ref.hasReferenceElement()) {
-        return ref.getReferenceElement().getResourceType().equals(type.getSimpleName());
-      }
-      else if(ref.getResource() != null) {
+      if(ref.getResource() != null) {
         return type.isInstance(ref.getResource());
       }
+      else if (ref.hasReferenceElement()) {
+        return ref.getReferenceElement().getResourceType().equals(type.getSimpleName());
+      }
+      else
 
       return false;
     };
