@@ -39,6 +39,15 @@
             </ns:DataElementStructure>
           </ns:VerifiedIdentity_Structure>
         </ns:PatientIdentity>
+        <ns:PatientCharacteristics_EmergencyCare>
+          <ns:PersonStatedGenderCode>2</ns:PersonStatedGenderCode>
+          <ns:EthnicCategory>99</ns:EthnicCategory>
+          <ns:AccommodationStatus_SnomedCt>414418009</ns:AccommodationStatus_SnomedCt>
+          <ns:PreferredSpokenLanguage_SnomedCt>204331000000107</ns:PreferredSpokenLanguage_SnomedCt>
+          <ns:AccessibleInformationProfessionalRequiredCode_SnomedCt>715963003</ns:AccessibleInformationProfessionalRequiredCode_SnomedCt>
+          <ns:InterpreterLanguage_SnomedCt>204331000000107</ns:InterpreterLanguage_SnomedCt>
+          <ns:OverseasVisitorChargingCategoryAtCdsActivityDate>A</ns:OverseasVisitorChargingCategoryAtCdsActivityDate>
+        </ns:PatientCharacteristics_EmergencyCare>
       </ns:PersonGroupPatient>
       <ns:GPRegistration>
         <ns:GeneralMedicalPractitioner_Specified>CC2003XX</ns:GeneralMedicalPractitioner_Specified>

@@ -36,6 +36,7 @@
             </ns:DataElementStructure>
           </ns:UnverifiedIdentity_Structure>
         </ns:PatientIdentity>
+        <ns:PatientCharacteristics_EmergencyCare/>
       </ns:PersonGroupPatient>
       <ns:GPRegistration>
         <ns:GeneralPractice_PatientRegistration>V81997</ns:GeneralPractice_PatientRegistration>
