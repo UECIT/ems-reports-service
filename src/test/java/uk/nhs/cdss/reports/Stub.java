@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.nhs.cdss.reports.constants.Systems.DIAGNOSIS_ROLE;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Calendar.Builder;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
+import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Location;
@@ -36,6 +38,7 @@ import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralCategory;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralPriority;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestStatus;
+import org.hl7.fhir.dstu3.model.StringType;
 import uk.nhs.cdss.reports.constants.Systems;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.model.EncounterReportInput.EncounterReportInputBuilder;
@@ -48,7 +51,9 @@ import uk.nhs.cdss.reports.transform.ecds.EmergencyCareInvestigationsTransformer
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTreatmentsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.GPRegistrationTransformer;
+import uk.nhs.cdss.reports.transform.ecds.PatientCharacteristicsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientClinicalHistoryTransformer;
+import uk.nhs.cdss.reports.transform.ecds.PatientIdentityTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientInformationTransformer;
 import uk.nhs.cdss.reports.transform.ecds.ReferralsToOtherServicesTransformer;
 
@@ -150,10 +155,22 @@ public class Stub {
         .addGeneralPractitioner(new Reference(Stub.practitionerOrg()))
         .addGeneralPractitioner(new Reference(Stub.practitioner()))
         .addIdentifier(nhsNumberIdentifierVerified())
-        .addAddress(new Address().setPostalCode("PS1 1AA"));
+        .addAddress(new Address().setPostalCode("PS1 1AA"))
+        .setExtension(careConnectExtensions());
 
     patient.setIdBase("123");
     return patient;
+  }
+
+  private List<Extension> careConnectExtensions() {
+    Extension commsExtension = new Extension(Systems.NHS_COMMS_URL, new CodeableConcept());
+    commsExtension.addExtension("language", new StringType("English"));
+    return Arrays.asList(
+        new Extension(Systems.ETHNIC_CODES_URL, new CodeableConcept()),
+        commsExtension,
+        new Extension(Systems.RESIDENTIAL_STATUS_URL, new CodeableConcept()),
+        new Extension(Systems.TREATMENT_CATEGORY_URL, new CodeableConcept())
+    );
   }
 
   public NHSNumberIdentifier nhsNumberIdentifierUnverified() {
@@ -203,7 +220,9 @@ public class Stub {
     return new ECDSReportTransformer(
         Stub.counterService(),
         new EmergencyCareTransformer(
-            new PatientInformationTransformer(),
+            new PatientInformationTransformer(
+                new PatientIdentityTransformer(),
+                new PatientCharacteristicsTransformer()),
             new AttendanceOccurrenceTransformer(
                 new ReferralsToOtherServicesTransformer(),
                 new EmergencyCareDiagnosesTransformer(Stub.counterService()),
