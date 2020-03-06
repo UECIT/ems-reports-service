@@ -1,14 +1,11 @@
 package uk.nhs.cdss.reports.transform.iucds;
 
-import java.util.Date;
 import java.util.UUID;
 import lombok.experimental.UtilityClass;
+import org.hl7.fhir.dstu3.model.Period;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
-import uk.nhs.cdss.reports.transform.iucds.constants.ClassCode;
-import uk.nhs.cdss.reports.transform.iucds.constants.MoodCode;
 import uk.nhs.cdss.reports.transform.iucds.constants.OID;
 import uk.nhs.cdss.reports.transform.iucds.constants.Template;
-import uk.nhs.connect.iucds.cda.ucr.ActRelationshipHasComponentX;
 import uk.nhs.connect.iucds.cda.ucr.CE;
 import uk.nhs.connect.iucds.cda.ucr.IVLTS;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
@@ -35,15 +32,12 @@ public class Encounter {
       EncounterReportInput input) {
 
     POCDMT000002UK01Component1 componentOf = clinicalDocument.addNewComponentOf();
-    componentOf.setTypeCode(ActRelationshipHasComponentX.COMP);
 
     Elements.addId(componentOf::addNewContentId,
         OID.NPFIT_CDA_CONTENT, Template.ENCOMPASSING_ENCOUNTER);
 
     POCDMT000002UK01EncompassingEncounter encompassingEncounter = componentOf
         .addNewEncompassingEncounter();
-    encompassingEncounter.setClassCode(ClassCode.ENC);
-    encompassingEncounter.setMoodCode(MoodCode.EVN);
 
     Elements.addId(encompassingEncounter::addNewTemplateId,
         OID.TEMPLATE, Template.ENCOMPASSING_ENCOUNTER);
@@ -56,10 +50,16 @@ public class Encounter {
     code.setCodeSystem(OID.NHS111_ENCOUNTER);
     code.setDisplayName("NHS111 Encounter");
 
-    // TODO start and end of encounter
+    // TODO review use of period
     IVLTS effectiveTime = encompassingEncounter.addNewEffectiveTime();
-    effectiveTime.addNewLow().setValue(Metadata.format(new Date()));
-    effectiveTime.addNewHigh().setValue(Metadata.format(new Date()));
+    if (input.getEncounter().hasPeriod()) {
+      Period period = input.getEncounter().getPeriod();
+      effectiveTime.addNewLow().setValue(Metadata.format(period.getStart()));
+      effectiveTime.addNewHigh().setValue(Metadata.format(period.getEnd()));
+    } else {
+      effectiveTime.addNewLow().setValue(Metadata.format(input.getDateOfPreparation()));
+      effectiveTime.addNewHigh().setValue(Metadata.format(input.getDateOfPreparation()));
+    }
   }
 
   /**
@@ -74,22 +74,14 @@ public class Encounter {
   void buildBody(POCDMT000002UK01ClinicalDocument1 clinicalDocument,
       EncounterReportInput input) {
     POCDMT000002UK01Component2 outerComponent = clinicalDocument.addNewComponent();
-    outerComponent.setTypeCode(ActRelationshipHasComponentX.COMP);
-    outerComponent.setContextConductionInd(true);
 
     POCDMT000002UK01StructuredBody structuredBody = outerComponent
         .addNewStructuredBody();
-    structuredBody.setClassCode(ClassCode.DOCBODY);
-    structuredBody.setMoodCode(MoodCode.EVN);
 
     POCDMT000002UK01Component3 bodyComponent = structuredBody
         .addNewComponent();
-    bodyComponent.setTypeCode(ActRelationshipHasComponentX.COMP);
-    bodyComponent.setContextConductionInd(true);
 
     POCDMT000002UK01Section section = bodyComponent.addNewSection();
-    section.setClassCode(ClassCode.DOCSECT);
-    section.setMoodCode(MoodCode.EVN);
 
     // TODO Where should ID be generated?
     section.addNewId().setRoot(UUID.randomUUID().toString().toUpperCase());

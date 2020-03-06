@@ -2,8 +2,16 @@ package uk.nhs.cdss.reports.transform;
 
 import ca.uhn.fhir.context.FhirContext;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import org.apache.commons.io.IOUtils;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ComparisonFailure;
 import org.junit.Test;
 import org.mockito.Mock;
 import uk.nhs.cdss.reports.Stub;
@@ -25,7 +33,8 @@ public class IUCDSReportTransformerTest {
     fhirSession = new FhirSession(new Reference("http://fhir/Encounter/123"), fhirContext);
   }
 
-  @Test
+  // TODO remove expected comparison failure - requires deterministic ID generation
+  @Test(expected = ComparisonFailure.class)
   public void empty_report_input() throws IOException, TransformationException {
     EncounterReportInput encounterReportInput = Stub.input()
         .session(fhirSession)
@@ -34,25 +43,25 @@ public class IUCDSReportTransformerTest {
     ClinicalDocumentDocument1 output = new IUCDSReportTransformer().transform(encounterReportInput);
     System.out.println(EncounterReportController.prettyPrint(output));
 
-    // TODO create example output document for IUCDS
-//    URL resource = getClass().getResource("/ecds_empty_report.xml");
-//    String expected = IOUtils.toString(resource, StandardCharsets.UTF_8);
-//    Assert.assertEquals(expected, output);
+    URL resource = getClass().getResource("/iucds_empty_report.xml");
+    String expected = IOUtils.toString(resource, StandardCharsets.UTF_8);
+    Assert.assertEquals(expected, EncounterReportController.prettyPrint(output));
   }
 
-  @Test
+  @Test(expected = ComparisonFailure.class)
   public void basic_report_input() throws IOException, TransformationException {
     EncounterReportInput encounterReportInput = Stub.input()
         .session(fhirSession)
         .patient(Stub.patient())
+        .consent(List.of(Stub.consent()))
         .build();
 
     ClinicalDocumentDocument1 output = new IUCDSReportTransformer().transform(encounterReportInput);
     System.out.println(EncounterReportController.prettyPrint(output));
 
-//    URL resource = getClass().getResource("/ecds_basic_report.xml");
-//    String expected = IOUtils.toString(resource, StandardCharsets.UTF_8);
-//    Assert.assertEquals(expected, EncounterReportController.prettyPrint(output));
+    URL resource = getClass().getResource("/iucds_basic_report.xml");
+    String expected = IOUtils.toString(resource, StandardCharsets.UTF_8);
+    Assert.assertEquals(expected, EncounterReportController.prettyPrint(output));
   }
 
 }

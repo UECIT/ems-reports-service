@@ -3,7 +3,6 @@ package uk.nhs.cdss.reports.transform.iucds;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.apache.xmlbeans.XmlError;
@@ -16,9 +15,7 @@ import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.transform.ReportXMLTransformer;
 import uk.nhs.cdss.reports.transform.TransformationException;
 import uk.nhs.cdss.reports.transform.ValidationException;
-import uk.nhs.cdss.reports.transform.iucds.constants.MoodCode;
 import uk.nhs.cdss.reports.transform.iucds.constants.OID;
-import uk.nhs.connect.iucds.cda.ucr.ActClinicalDocumentX;
 import uk.nhs.connect.iucds.cda.ucr.CE;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
@@ -39,22 +36,21 @@ public class IUCDSReportTransformer implements ReportXMLTransformer {
   }
 
   private void buildMessage(ClinicalDocumentDocument1 document, EncounterReportInput input) {
-    POCDMT000002UK01ClinicalDocument1 clinicalDocument = buildClinicalDocument(document);
+    POCDMT000002UK01ClinicalDocument1 clinicalDocument = buildClinicalDocument(document, input);
 
     Patient.buildRecordTarget(clinicalDocument, input);
     Metadata.buildAuthor(clinicalDocument, input);
     Metadata.buildCustodian(clinicalDocument, input);
     Metadata.buildInformationRecipient(clinicalDocument, input);
+    Metadata.buildConsent(clinicalDocument, input);
 
     Encounter.buildComponentOf(clinicalDocument, input);
     Encounter.buildBody(clinicalDocument, input);
   }
 
   private POCDMT000002UK01ClinicalDocument1 buildClinicalDocument(
-      ClinicalDocumentDocument1 document) {
+      ClinicalDocumentDocument1 document, EncounterReportInput input) {
     POCDMT000002UK01ClinicalDocument1 clinicalDocument = document.addNewClinicalDocument();
-    clinicalDocument.setClassCode(ActClinicalDocumentX.DOCCLIN); // Fixed
-    clinicalDocument.setMoodCode(MoodCode.EVN); // Fixed
 
     CE code = clinicalDocument.addNewCode();
     code.setCodeSystem(OID.SNOMED);
@@ -67,7 +63,7 @@ public class IUCDSReportTransformer implements ReportXMLTransformer {
     code.setDisplayName("very restricted");
 
     clinicalDocument.addNewEffectiveTime()
-        .setValue(Metadata.format(new Date()));
+        .setValue(Metadata.format(input.getDateOfPreparation().getTime()));
 
     clinicalDocument.addNewId()
         .setRoot(UUID.randomUUID().toString().toUpperCase());

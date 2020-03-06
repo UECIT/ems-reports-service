@@ -1,36 +1,41 @@
 package uk.nhs.cdss.reports.transform.iucds;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.xmlbeans.XmlString;
+import org.hl7.fhir.dstu3.model.Consent;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
-import uk.nhs.cdss.reports.transform.iucds.constants.ClassCode;
-import uk.nhs.cdss.reports.transform.iucds.constants.DeterminerCode;
 import uk.nhs.cdss.reports.transform.iucds.constants.OID;
 import uk.nhs.cdss.reports.transform.iucds.constants.Template;
-import uk.nhs.cdss.reports.transform.iucds.constants.TypeCode;
 import uk.nhs.connect.iucds.cda.ucr.CE;
 import uk.nhs.connect.iucds.cda.ucr.ON;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01AssignedAuthor;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01AssignedCustodian;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Author;
+import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Authorization;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
+import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Consent;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Custodian;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01CustodianOrganization;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01InformationRecipient;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01IntendedRecipient;
-import uk.nhs.connect.iucds.cda.ucr.XInformationRecipientRoleX;
-import uk.nhs.connect.iucds.cda.ucr.XInformationRecipientX;
 import uk.nhs.connect.npfit.hl7.localisation.TemplateContent;
 
 @UtilityClass
 public class Metadata {
 
-  FastDateFormat DATETIME_FORMAT = FastDateFormat
+  private FastDateFormat DATETIME_FORMAT = FastDateFormat
       .getInstance("yyyyMMddHHmmssZ");
 
-  public static String format(Date date) {
+  public String format(Date date) {
+    return DATETIME_FORMAT.format(date);
+  }
+
+  public String format(Calendar date) {
     return DATETIME_FORMAT.format(date);
   }
 
@@ -54,8 +59,6 @@ public class Metadata {
   void buildAuthor(POCDMT000002UK01ClinicalDocument1 clinicalDocument,
       EncounterReportInput input) {
     POCDMT000002UK01Author author = clinicalDocument.addNewAuthor();
-    author.setTypeCode("AUT");
-    author.setContextControlCode("OP");
 
     TemplateContent contentId = author.addNewContentId();
     contentId.setRoot(OID.NPFIT_CDA_CONTENT);
@@ -66,10 +69,9 @@ public class Metadata {
     functionCode.setCodeSystem("2.16.840.1.113883.2.1.3.2.4.17.178");
     functionCode.setDisplayName("Originating Author");
 
-    author.addNewTime().setValue(DATETIME_FORMAT.format(new Date()));
+    author.addNewTime().setValue(format(input.getDateOfPreparation()));
 
     POCDMT000002UK01AssignedAuthor assignedAuthor = author.addNewAssignedAuthor();
-    assignedAuthor.setClassCode(ClassCode.ASSIGNED);
 
     Elements.addId(assignedAuthor::addNewId, OID.LOCAL_PERSON,
         "author_id", "author_org"); // TODO
@@ -91,21 +93,17 @@ public class Metadata {
   void buildCustodian(POCDMT000002UK01ClinicalDocument1 clinicalDocument,
       EncounterReportInput input) {
     POCDMT000002UK01Custodian custodian = clinicalDocument.addNewCustodian();
-    custodian.setTypeCode(TypeCode.CST);
 
     Elements.addId(custodian::addNewContentId,
         OID.NPFIT_CDA_CONTENT, Template.ASSIGNED_CUSTODIAN);
 
     POCDMT000002UK01AssignedCustodian assignedCustodian = custodian.addNewAssignedCustodian();
-    assignedCustodian.setClassCode(ClassCode.ASSIGNED);
 
     Elements.addId(assignedCustodian::addNewTemplateId,
         OID.TEMPLATE, Template.ASSIGNED_CUSTODIAN);
 
     POCDMT000002UK01CustodianOrganization organization = assignedCustodian
         .addNewRepresentedCustodianOrganization();
-    organization.setClassCode(ClassCode.ORG);
-    organization.setDeterminerCode(DeterminerCode.INSTANCE);
 
     Elements.addId(organization::addNewTemplateId,
         OID.TEMPLATE, Template.REPRESENTED_CUSTODIAN_ORGANIZATION);
@@ -133,7 +131,6 @@ public class Metadata {
       EncounterReportInput input) {
     POCDMT000002UK01InformationRecipient informationRecipient = clinicalDocument
         .addNewInformationRecipient();
-    informationRecipient.setTypeCode(XInformationRecipientX.PRCP);
 
     // varies depending on whether the receiver is an org or person
     Elements.addId(informationRecipient::addNewContentId,
@@ -141,9 +138,30 @@ public class Metadata {
 
     POCDMT000002UK01IntendedRecipient intendedRecipient = informationRecipient
         .addNewIntendedRecipient();
-    intendedRecipient.setClassCode(XInformationRecipientRoleX.ASSIGNED);
 
     // TODO received organisation?
 
+  }
+
+  public void buildConsent(POCDMT000002UK01ClinicalDocument1 clinicalDocument,
+      EncounterReportInput input) {
+    List<Consent> consentList = input.getConsent();
+
+    if (CollectionUtils.isNotEmpty(consentList)) {
+      POCDMT000002UK01Authorization auth = clinicalDocument.addNewAuthorization();
+
+      for (Consent consent : consentList) {
+        POCDMT000002UK01Consent ce = auth.addNewConsent();
+        Elements.setCode(OID.ACT_STATUS, "completed", ce::setStatusCode);
+
+        Elements.addId(ce::addNewId, consent.getId());
+
+        // TODO Filter categories to relevant codes
+        if (consent.hasCategory()) {
+          String code = consent.getCategoryFirstRep().getCodingFirstRep().getCode();
+          Elements.addConcept(ce::addNewCode, OID.ACT_CONSENT_TYPE, code);
+        }
+      }
+    }
   }
 }
