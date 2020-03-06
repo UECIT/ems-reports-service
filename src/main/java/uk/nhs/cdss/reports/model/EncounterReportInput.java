@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Value;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Procedure;
@@ -21,6 +22,7 @@ public class EncounterReportInput {
   Patient patient;
   List<Practitioner> participants;
   List<Procedure> procedures;
+  List<Observation> observations;
   FhirSession session;
 
 }

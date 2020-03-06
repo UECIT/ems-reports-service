@@ -22,12 +22,14 @@ import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
+import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.NHSNumberIdentifier;
+import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Period;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -43,6 +45,7 @@ import uk.nhs.cdss.reports.constants.Systems;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.model.EncounterReportInput.EncounterReportInputBuilder;
 import uk.nhs.cdss.reports.service.CounterService;
+import uk.nhs.cdss.reports.service.SnomedService;
 import uk.nhs.cdss.reports.transform.ecds.AttendanceActivityCharacteristicsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.AttendanceOccurrenceTransformer;
 import uk.nhs.cdss.reports.transform.ecds.ECDSReportTransformer;
@@ -51,16 +54,18 @@ import uk.nhs.cdss.reports.transform.ecds.EmergencyCareInvestigationsTransformer
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTreatmentsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.GPRegistrationTransformer;
+import uk.nhs.cdss.reports.transform.ecds.InjuryCharacteristicsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientCharacteristicsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientClinicalHistoryTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientIdentityTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientInformationTransformer;
 import uk.nhs.cdss.reports.transform.ecds.ReferralsToOtherServicesTransformer;
+import uk.nhs.cdss.reports.transform.ecds.constants.InjuryCodes;
 
 @UtilityClass
 public class Stub {
 
-  public static final Calendar CALENDAR = new Builder()
+  public final Calendar CALENDAR = new Builder()
       .setDate(2020, 0, 1)
       .build();
 
@@ -80,21 +85,28 @@ public class Stub {
   }
 
   public Encounter encounter() {
+    final var COMORBIDITY = new CodeableConcept()
+        .addCoding(new Coding(DIAGNOSIS_ROLE, "CM", "Comorbidity diagnosis"));
     Encounter encounter = new Encounter();
     encounter
         .setPeriod(new Period().setStart(CALENDAR.getTime()))
         .setServiceProvider(new Reference(serviceProvider()))
-        .addDiagnosis(new DiagnosisComponent(new Reference(condition()))
-            .setRole(new CodeableConcept()
-                .addCoding(new Coding(DIAGNOSIS_ROLE, "CM", "Comorbidity diagnosis"))))
+        .addLocation(new EncounterLocationComponent(new Reference(location())))
+        .addDiagnosis(new DiagnosisComponent(new Reference(condition())).setRole(COMORBIDITY))
         .addDiagnosis(new DiagnosisComponent(new Reference(condition()))) //NOT CM
-        .addDiagnosis(new DiagnosisComponent(new Reference(procedure()))
-            .setRole(new CodeableConcept()
-                .addCoding(new Coding(DIAGNOSIS_ROLE, "CM", "Comorbidity diagnosis"))))
+        .addDiagnosis(new DiagnosisComponent(new Reference(procedure())).setRole(COMORBIDITY))
         .addDiagnosis(new DiagnosisComponent(new Reference(procedure()))) //NOT CM
+        .addDiagnosis(new DiagnosisComponent(new Reference(woundCondition())))
         .setId("123");
 
     return encounter;
+  }
+
+  private Condition woundCondition() {
+    var date = new GregorianCalendar(1996, Calendar.JANUARY, 23, 15, 35, 49);
+    return new Condition()
+        .setCode(buildSnomedConcept(InjuryCodes.WOUND_FINDING, "Wounded"))
+        .setOnset(new DateTimeType(date));
   }
 
   private Condition condition() {
@@ -109,7 +121,7 @@ public class Stub {
             .addCoding(new Coding("system", "828282", "Comorbid")));
   }
 
-  public static Location location() {
+  public Location location() {
     return new Location()
         .setName("Location")
         .setType(new CodeableConcept()
@@ -203,11 +215,27 @@ public class Stub {
         .setReasonCode(Collections.singletonList(new CodeableConcept()
             .addCoding(new Coding("sys", "reason", "display"))))
         .setReasonReference(List.of(new Reference(new Condition()
-            .setCode(new CodeableConcept()
-                .addCoding(new Coding(Systems.SNOMED, "01010101", "display"))))));
+            .setCode(buildSnomedConcept("01010101", "display")))));
 
     referralRequest.setIdBase("123");
     return Collections.singletonList(referralRequest);
+  }
+
+  public List<Observation> injuryObservations() {
+    return List.of(
+        new Observation().setCode(buildSnomedConcept(InjuryCodes.PLACE_REFSET, "Place")),
+        new Observation().setCode(buildSnomedConcept(InjuryCodes.INTENT_REFSET, "Intent")),
+        new Observation().setCode(
+            buildSnomedConcept(InjuryCodes.ACTIVITY_STATUS_REFSET, "Activity status")),
+        new Observation().setCode(
+            buildSnomedConcept(InjuryCodes.ACTIVITY_TYPE_REFSET, "Activity type")),
+        new Observation().setCode(
+            buildSnomedConcept(InjuryCodes.MECHANISM_REFSET, "Mechanism")),
+        new Observation().setCode(
+            buildSnomedConcept(
+                InjuryCodes.ALCOHOL_OR_DRUG_INVOLVEMENT_REFSET,
+                "Alcohol or drug involvement"))
+    );
   }
 
   public CounterService counterService() {
@@ -225,26 +253,30 @@ public class Stub {
                 new PatientCharacteristicsTransformer()),
             new AttendanceOccurrenceTransformer(
                 new ReferralsToOtherServicesTransformer(),
-                new EmergencyCareDiagnosesTransformer(Stub.counterService()),
+                new EmergencyCareDiagnosesTransformer(),
                 new EmergencyCareInvestigationsTransformer(),
                 new EmergencyCareTreatmentsTransformer(),
                 new AttendanceActivityCharacteristicsTransformer(),
-                new PatientClinicalHistoryTransformer()),
+                new PatientClinicalHistoryTransformer(),
+                new InjuryCharacteristicsTransformer(new SnomedService())),
             new GPRegistrationTransformer()));
   }
 
-  public static List<Procedure> procedures() {
+  public List<Procedure> procedures() {
+    var date = new GregorianCalendar(2013, Calendar.FEBRUARY, 5, 5, 43, 12);
     CodeableConcept codeableConcept = new CodeableConcept()
         .addCoding(new Coding("sys", "9876534", "display"));
     Procedure procedure = new Procedure()
         .setStatus(ProcedureStatus.PREPARATION)
         .addReasonCode(codeableConcept)
         .setCode(codeableConcept)
-        .setPerformed(
-            new DateTimeType(new GregorianCalendar(2013, Calendar.FEBRUARY, 5, 5, 43, 12)));
+        .setPerformed(new DateTimeType(date));
 
     procedure.setIdBase("123");
     return Collections.singletonList(procedure);
   }
 
+  private CodeableConcept buildSnomedConcept(String value, String display) {
+    return new CodeableConcept().addCoding(new Coding(Systems.SNOMED, value, display));
+  }
 }

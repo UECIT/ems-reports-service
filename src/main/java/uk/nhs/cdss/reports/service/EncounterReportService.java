@@ -36,6 +36,7 @@ public class EncounterReportService {
         .referralRequest(fhirSession.getReferralRequests())
         .participants(fhirSession.getParticipants(practitioners))
         .procedures(fhirSession.getProcedures())
+        .observations(fhirSession.getObservations())
         .session(fhirSession)
         .build();
   }

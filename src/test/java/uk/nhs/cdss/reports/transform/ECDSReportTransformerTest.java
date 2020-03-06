@@ -54,10 +54,9 @@ public class ECDSReportTransformerTest {
   public void basic_report_input() throws IOException, TransformationException {
     EncounterReportInput encounterReportInput = Stub.input()
         .session(fhirSession)
-        .encounter(Stub.encounter()
-            .setLocation(
-                List.of(new EncounterLocationComponent(new Reference(Stub.location())))))
+        .encounter(Stub.encounter())
         .patient(Stub.patient())
+        .observations(Stub.injuryObservations())
         .build();
 
     CDSXMLInterchangeDocument output = Stub.ecdsTransformer()

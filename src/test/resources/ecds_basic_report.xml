@@ -66,6 +66,16 @@
           <ns:EmergencyCareInitialAssessmentDate>2020-01-01</ns:EmergencyCareInitialAssessmentDate>
           <ns:EmergencyCareInitialAssessmentTime>00:00:00</ns:EmergencyCareInitialAssessmentTime>
         </ns:EmergencyCareAttendanceActivityCharacteristics>
+        <ns:InjuryCharacteristics>
+          <ns:InjuryDate>1996-01-23</ns:InjuryDate>
+          <ns:InjuryTime>15:35:49</ns:InjuryTime>
+          <ns:EmergencyCarePlaceOfInjury_SnomedCt>991291000000101</ns:EmergencyCarePlaceOfInjury_SnomedCt>
+          <ns:EmergencyCareInjuryIntent_SnomedCt>991431000000101</ns:EmergencyCareInjuryIntent_SnomedCt>
+          <ns:EmergencyCareInjuryActivityStatus_SnomedCt>999003031000000102</ns:EmergencyCareInjuryActivityStatus_SnomedCt>
+          <ns:EmergencyCareInjuryActivityType_SnomedCt>1024501000000108</ns:EmergencyCareInjuryActivityType_SnomedCt>
+          <ns:EmergencyCareInjuryMechanism_SnomedCt>991281000000103</ns:EmergencyCareInjuryMechanism_SnomedCt>
+          <ns:EmergencyCareInjuryAlcoholOrDrugInvolvement_SnomedCt>991421000000103</ns:EmergencyCareInjuryAlcoholOrDrugInvolvement_SnomedCt>
+        </ns:InjuryCharacteristics>
         <ns:PatientClinicalHistory>
           <ns:Comorbidity_SnomedCt>282828</ns:Comorbidity_SnomedCt>
           <ns:Comorbidity_SnomedCt>828282</ns:Comorbidity_SnomedCt>
@@ -81,7 +91,12 @@
         </ns:EmergencyCareDiagnoses_SnomedCt>
         <ns:EmergencyCareDiagnoses_SnomedCt>
           <ns:EmergencyCareDiagnosis_SnomedCt>282828</ns:EmergencyCareDiagnosis_SnomedCt>
-          <ns:CodedClinicalEntrySequenceNumber>1</ns:CodedClinicalEntrySequenceNumber>
+          <ns:CodedClinicalEntrySequenceNumber>2</ns:CodedClinicalEntrySequenceNumber>
+          <ns:EmergencyCareDiagnosisQualifier_SnomedCt>9929229</ns:EmergencyCareDiagnosisQualifier_SnomedCt>
+        </ns:EmergencyCareDiagnoses_SnomedCt>
+        <ns:EmergencyCareDiagnoses_SnomedCt>
+          <ns:EmergencyCareDiagnosis_SnomedCt>225552003</ns:EmergencyCareDiagnosis_SnomedCt>
+          <ns:CodedClinicalEntrySequenceNumber>3</ns:CodedClinicalEntrySequenceNumber>
           <ns:EmergencyCareDiagnosisQualifier_SnomedCt>9929229</ns:EmergencyCareDiagnosisQualifier_SnomedCt>
         </ns:EmergencyCareDiagnoses_SnomedCt>
       </ns:AttendanceOccurrence>
