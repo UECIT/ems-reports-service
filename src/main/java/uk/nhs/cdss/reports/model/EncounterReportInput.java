@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 import lombok.Builder;
 import lombok.Value;
+import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
@@ -24,5 +25,6 @@ public class EncounterReportInput {
   List<Procedure> procedures;
   List<Observation> observations;
   FhirSession session;
+  List<Consent> consent;
 
 }

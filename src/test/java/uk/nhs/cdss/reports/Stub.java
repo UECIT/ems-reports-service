@@ -19,6 +19,7 @@ import org.hl7.fhir.dstu3.model.CareConnectPatient;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
@@ -277,6 +278,21 @@ public class Stub {
   }
 
   private CodeableConcept buildSnomedConcept(String value, String display) {
-    return new CodeableConcept().addCoding(new Coding(Systems.SNOMED, value, display));
+    return buildConcept(Systems.SNOMED, value, display);
+  }
+
+  private CodeableConcept buildConcept(String system, String value, String display) {
+    return new CodeableConcept().addCoding(new Coding(system, value, display));
+  }
+
+  public Consent consent() {
+    Consent consent = new Consent();
+    consent
+        .addCategory(buildConcept(
+            "http://hl7.org/fhir/ValueSet/consent-category",
+            "ICOL", "information collection"))
+        .setId("consent");
+
+    return consent;
   }
 }

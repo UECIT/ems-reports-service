@@ -4,12 +4,8 @@ import lombok.experimental.UtilityClass;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
-import uk.nhs.cdss.reports.transform.iucds.constants.ClassCode;
-import uk.nhs.cdss.reports.transform.iucds.constants.ContextControlCode;
-import uk.nhs.cdss.reports.transform.iucds.constants.DeterminerCode;
 import uk.nhs.cdss.reports.transform.iucds.constants.OID;
 import uk.nhs.cdss.reports.transform.iucds.constants.Template;
-import uk.nhs.cdss.reports.transform.iucds.constants.TypeCode;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01AssociatedEntity;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Organization;
@@ -39,14 +35,11 @@ public class Patient {
       EncounterReportInput input) {
 
     POCDMT000002UK01RecordTarget recordTarget = clinicalDocument.addNewRecordTarget();
-    recordTarget.setTypeCode(TypeCode.RCT);
-    recordTarget.setContextControlCode(ContextControlCode.OP);
 
     Elements.addId(recordTarget::addNewContentId,
         OID.NPFIT_CDA_CONTENT, Template.PATIENT_ROLE);
 
     POCDMT000002UK01PatientRole patientRole = recordTarget.addNewPatientRole();
-    patientRole.setClassCode(ClassCode.PAT);
 
     if (input.getPatient() != null) {
       // TODO does patient have an NHS ID?
@@ -63,14 +56,11 @@ public class Patient {
         encounter == null ? null : encounter.getLocationFirstRep();
     if (location != null && location.getId() != null) {
       POCDMT000002UK01Participant1 participant = clinicalDocument.addNewParticipant();
-      participant.setTypeCode(TypeCode.REFT);
-      participant.setContextControlCode(ContextControlCode.OP);
 
       Elements.addId(participant::addNewContentId,
           OID.NPFIT_CDA_CONTENT, Template.ASSOCIATED_ENTITY);
 
       POCDMT000002UK01AssociatedEntity associatedEntity = participant.addNewAssociatedEntity();
-      associatedEntity.setClassCode(ClassCode.ASSIGNED);
 
       Elements.addId(associatedEntity::addNewTemplateId,
           OID.TEMPLATE, Template.ASSOCIATED_ENTITY);
@@ -88,8 +78,6 @@ public class Patient {
 
     POCDMT000002UK01Organization scopingOrganization = associatedEntity
         .addNewScopingOrganization();
-    scopingOrganization.setClassCode(ClassCode.ORG);
-    scopingOrganization.setDeterminerCode(DeterminerCode.INSTANCE);
 
     Elements.addId(scopingOrganization::addNewTemplateId,
         OID.TEMPLATE, Template.SCOPING_ORG);

@@ -37,6 +37,7 @@ public class EncounterReportService {
         .participants(fhirSession.getParticipants(practitioners))
         .procedures(fhirSession.getProcedures())
         .observations(fhirSession.getObservations())
+        .consent(fhirSession.getConsent())
         .session(fhirSession)
         .build();
   }

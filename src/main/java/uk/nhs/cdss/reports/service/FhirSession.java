@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Condition;
+import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.DomainResource;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Location;
@@ -59,6 +60,19 @@ public class FhirSession {
         .getEntry().stream()
         .map(BundleEntryComponent::getResource)
         .map(type::cast)
+        .collect(Collectors.toList());
+  }
+
+  public List<Consent> getConsent() {
+    return fhirContext.newRestfulGenericClient(getBaseUrl()).search()
+        .forResource(Consent.class)
+        .where(Consent.PATIENT.hasId(getEncounter().getSubject().getReferenceElement()))
+        .where(Consent.DATA.hasId(encounterRef.getReferenceElement()))
+        .returnBundle(Bundle.class)
+        .execute()
+        .getEntry().stream()
+        .map(BundleEntryComponent::getResource)
+        .map(Consent.class::cast)
         .collect(Collectors.toList());
   }
 
