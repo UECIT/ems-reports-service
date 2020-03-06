@@ -21,7 +21,6 @@ public class ReferenceUtil {
       else if (ref.hasReferenceElement()) {
         return ref.getReferenceElement().getResourceType().equals(type.getSimpleName());
       }
-      else
 
       return false;
     };

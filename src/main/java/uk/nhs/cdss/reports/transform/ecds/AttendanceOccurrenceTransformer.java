@@ -2,7 +2,6 @@ package uk.nhs.cdss.reports.transform.ecds;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +14,9 @@ import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.util.IdentifierUtil;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.CareProfessionalsEmergencyCare;
-import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.EmergencyCareAttendanceActivityCharacteristics;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.ServiceAgreementDetails;
 import uk.nhs.nhsia.datastandards.ecds.CareProfessionalTierECType;
-import uk.nhs.nhsia.datastandards.ecds.DateType;
 import uk.nhs.nhsia.datastandards.ecds.ProfessionalRegistrationIssuerCodeECType;
-import uk.nhs.nhsia.datastandards.ecds.TimeType;
 import uk.nhs.nhsia.datastandards.ecds.YesNoECType;
 
 @Component
@@ -37,8 +33,7 @@ public class AttendanceOccurrenceTransformer {
   private final EmergencyCareTreatmentsTransformer treatmentsTransformer;
   private final AttendanceActivityCharacteristicsTransformer activityTransformer;
   private final PatientClinicalHistoryTransformer clinicalHistoryTransformer;
-
-  private long attendanceRef;
+  private final InjuryCharacteristicsTransformer injuryCharacteristicsTransformer;
 
   public AttendanceOccurrenceECStructure transform(EncounterReportInput input) {
     var attendanceStructure = AttendanceOccurrenceECStructure.Factory.newInstance();
@@ -62,7 +57,9 @@ public class AttendanceOccurrenceTransformer {
     clinicalHistoryTransformer.transform(input)
         .ifPresent(attendanceStructure::setPatientClinicalHistory);
 
-    // TODO populate from encounter
+    injuryCharacteristicsTransformer.transform(input)
+        .ifPresent(attendanceStructure::setInjuryCharacteristics);
+
     return attendanceStructure;
   }
 
