@@ -98,7 +98,8 @@ public class AttendanceActivityCharacteristicsTransformer {
       Coding coding = condition.getCode().getCodingFirstRep();
       Preconditions.checkArgument(Systems.SNOMED.equals(coding.getSystem()),
           "Condition code must be SNOMED");
-
+      Preconditions.checkArgument(coding.getCode().length() <= 18,
+          "Primary concern snomed code must be less than 18 characters");
       activity.setEmergencyCareChiefComplaintSnomedCt(coding.getCode());
     }
 
