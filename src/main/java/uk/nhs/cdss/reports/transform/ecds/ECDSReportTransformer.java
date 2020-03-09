@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.xmlbeans.XmlDate;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.nhs.cdss.reports.controllers.EncounterReportController;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
@@ -41,6 +42,7 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
 
   private final CounterService counterService;
   private final EmergencyCareTransformer emergencyCareTransformer;
+  private final Identifiers identifiers;
 
   @Override
   public CDSXMLInterchangeDocument transform(EncounterReportInput input)
@@ -68,10 +70,10 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
 
     // Where an Organisation acts on behalf of another NHS Organisation, care must be taken to ensure the correct use of the identity.
     // For data submitted to the service, the CDS INTERCHANGE SENDER IDENTITY is the Electronic Data Interchange (EDI) address of the sending site.
-    header.setCDSInterchangeSenderIdentity("120000000000");
+    header.setCDSInterchangeSenderIdentity(identifiers.getSenderIdentity());
 
     // All Commissioning Data Set XML Schema interchanges submitted must contain the CDS INTERCHANGE RECEIVER IDENTITY of the Secondary Uses Service.
-    header.setCDSInterchangeReceiverIdentity("150000000000000");
+    header.setCDSInterchangeReceiverIdentity(identifiers.getReceiverIdentity());
 
     // For each Interchange submitted, the CDS INTERCHANGE CONTROL REFERENCE must be incremented by 1. The maximum value supported is n7 and wrap around from 9999999 to 1 must be supported.
     var next = counterService.incrementAndGetCounter(ECDSCounters.INTERCHANGE_CONTROL_REFERENCE);
@@ -85,7 +87,7 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
         CDSInterchangeTimeOfPreparationType.type));
 
     // This facility enables submitted interchanges to be marked to enable interchange content to be identified and recorded.
-    header.setCDSInterchangeApplicationReference("14000000000000");
+    header.setCDSInterchangeApplicationReference("NHSCDS");
 
     // This optional test facility enables interchanges submitted to be marked and therefore processed as Test or Production data.
     header.setCDSInterchangeTestIndicator("1");
@@ -108,10 +110,9 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
     header.setCDSMessageVersionNumber(CDSMessageVersionNumberType.CDS_062);
     header.setCDSMessageReferenceNumber(1);
 
-    var senderId = interchangeHeader.getCDSInterchangeSenderIdentity();
     var controlRef = interchangeHeader.getCDSInterchangeControlReference();
-    var messageRef = "0000001";
-    header.setCDSMessageRecordIdentifier(senderId + "  " + controlRef + messageRef);
+    var messageRef = String.format("%07d", header.getCDSMessageReferenceNumber());
+    header.setCDSMessageRecordIdentifier(identifiers.getSenderOdsOrganisation() + "  " + controlRef + messageRef);
 
     // Message body
     // Required elements
@@ -138,7 +139,9 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
     header.setCDSProtocolIdentifierCode(CDSProtocolIdentifierCodeType.X_010);
 
     // TODO populate from encounter
-    header.setCDSUniqueIdentifier("3500000000000000000000000000000000");
+    Long encounterId = input.getEncounter().getIdElement().getIdPartAsLong();
+    header.setCDSUniqueIdentifier(
+        "B" + identifiers.getSenderOdsOrganisation() + String.format("%07d", encounterId));
 
     // 9 --> Original or Replacement
     header.setCDSUpdateType(CDSUpdateTypeType.X_9);

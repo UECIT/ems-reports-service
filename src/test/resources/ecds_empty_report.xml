@@ -1,11 +1,11 @@
 <ns:CDS-XMLInterchange SchemaVersion="6-2-2" SchemaDate="2012-05-11" xmlns:ns="http://www.nhsia.nhs.uk/DataStandards/XMLschema/CDS/ns">
   <ns:CDSInterchangeHeader>
-    <ns:CDSInterchangeSenderIdentity>120000000000</ns:CDSInterchangeSenderIdentity>
-    <ns:CDSInterchangeReceiverIdentity>150000000000000</ns:CDSInterchangeReceiverIdentity>
+    <ns:CDSInterchangeSenderIdentity>1100000000</ns:CDSInterchangeSenderIdentity>
+    <ns:CDSInterchangeReceiverIdentity>1100000000</ns:CDSInterchangeReceiverIdentity>
     <ns:CDSInterchangeControlReference>0000001</ns:CDSInterchangeControlReference>
     <ns:CDSInterchangeDateOfPreparation>2020-01-01</ns:CDSInterchangeDateOfPreparation>
     <ns:CDSInterchangeTimeOfPreparation>00:00:00</ns:CDSInterchangeTimeOfPreparation>
-    <ns:CDSInterchangeApplicationReference>14000000000000</ns:CDSInterchangeApplicationReference>
+    <ns:CDSInterchangeApplicationReference>NHSCDS</ns:CDSInterchangeApplicationReference>
     <ns:CDSInterchangeTestIndicator>1</ns:CDSInterchangeTestIndicator>
   </ns:CDSInterchangeHeader>
   <ns:CDSNetChange-All-MessageTypes CDSTypeCode="011" CDSProtocolIdentifierCode="010">
@@ -13,17 +13,17 @@
       <ns:CDSMessageType>NHSCDS</ns:CDSMessageType>
       <ns:CDSMessageVersionNumber>CDS062</ns:CDSMessageVersionNumber>
       <ns:CDSMessageReferenceNumber>1</ns:CDSMessageReferenceNumber>
-      <ns:CDSMessageRecordIdentifier>120000000000  00000010000001</ns:CDSMessageRecordIdentifier>
+      <ns:CDSMessageRecordIdentifier>8HW00  00000010000001</ns:CDSMessageRecordIdentifier>
     </ns:CDSMessageHeader>
     <ns:CDSTransactionHeader_NetChange>
       <ns:CDSTypeCode>011</ns:CDSTypeCode>
       <ns:CDSProtocolIdentifierCode>010</ns:CDSProtocolIdentifierCode>
-      <ns:CDSUniqueIdentifier>3500000000000000000000000000000000</ns:CDSUniqueIdentifier>
+      <ns:CDSUniqueIdentifier>B8HW000000123</ns:CDSUniqueIdentifier>
       <ns:CDSUpdateType>9</ns:CDSUpdateType>
       <ns:CDSApplicableDate>2020-01-01</ns:CDSApplicableDate>
       <ns:CDSApplicableTime>00:00:00</ns:CDSApplicableTime>
       <ns:CDSActivityDate>2020-01-01</ns:CDSActivityDate>
-      <ns:OrganisationCode_CDSSenderIdentity>120000000000</ns:OrganisationCode_CDSSenderIdentity>
+      <ns:OrganisationCode_CDSSenderIdentity>1100000000</ns:OrganisationCode_CDSSenderIdentity>
       <ns:OrganisationCode_CDSPrimeRecipientIdentity>120000000000</ns:OrganisationCode_CDSPrimeRecipientIdentity>
     </ns:CDSTransactionHeader_NetChange>
     <ns:EmergencyCare>

@@ -55,6 +55,7 @@ import uk.nhs.cdss.reports.transform.ecds.EmergencyCareInvestigationsTransformer
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTransformer;
 import uk.nhs.cdss.reports.transform.ecds.EmergencyCareTreatmentsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.GPRegistrationTransformer;
+import uk.nhs.cdss.reports.transform.ecds.Identifiers;
 import uk.nhs.cdss.reports.transform.ecds.InjuryCharacteristicsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientCharacteristicsTransformer;
 import uk.nhs.cdss.reports.transform.ecds.PatientClinicalHistoryTransformer;
@@ -260,7 +261,16 @@ public class Stub {
                 new AttendanceActivityCharacteristicsTransformer(),
                 new PatientClinicalHistoryTransformer(),
                 new InjuryCharacteristicsTransformer(new SnomedService())),
-            new GPRegistrationTransformer()));
+            new GPRegistrationTransformer()),
+        identifiers());
+  }
+
+  private static Identifiers identifiers() {
+    return Identifiers.builder()
+        .senderIdentity("1100000000")
+        .senderOdsOrganisation("8HW00")
+        .receiverIdentity("1100000000")
+        .build();
   }
 
   public List<Procedure> procedures() {
