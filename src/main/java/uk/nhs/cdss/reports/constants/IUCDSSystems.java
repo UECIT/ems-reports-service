@@ -1,9 +1,10 @@
-package uk.nhs.cdss.reports.transform.iucds.constants;
+package uk.nhs.cdss.reports.constants;
 
 import lombok.experimental.UtilityClass;
+import org.hl7.fhir.dstu3.model.Coding;
 
 @UtilityClass
-public class OID {
+public class IUCDSSystems {
 
   /**
    * ActStatus HL7 codes
@@ -12,7 +13,7 @@ public class OID {
 
   public final String ACT_CODE = "2.16.840.1.113883.5.4";
   public final String ACT_CONSENT_TYPE = "2.16.840.1.113883.1.11.19897";
-
+  public final String ACT_ENCOUNTER_CODE = "2.16.840.1.113883.1.11.13955";
 
   /**
    * Local Person Identifier
@@ -36,6 +37,8 @@ public class OID {
    */
   public final String SDS_SITE = "2.16.840.1.113883.2.1.3.2.4.19.2";
 
+  public final String ODS_ORGANIZATION = "2.16.840.1.113883.2.1.4.3";
+
   /**
    * Approved NPfIT number for all template IDs. Further refinements will be described by the
    * extension.
@@ -58,4 +61,6 @@ public class OID {
    * Health Level 7 (HL7) registered Refined Message Information Models (RMIMs)
    */
   public final String HL7_RMIMS = "2.16.840.1.113883.1.3";
+
+  public final String SERVICE_DELIVERY_LOCATION_ROLE_TYPE = "2.16.840.1.113883.1.11.17660";
 }

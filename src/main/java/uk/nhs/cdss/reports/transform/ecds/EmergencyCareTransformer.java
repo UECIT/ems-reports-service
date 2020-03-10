@@ -54,7 +54,7 @@ public class EmergencyCareTransformer {
         Location locationResource = input.getSession().getLocation(locationRef);
 
         // Organization site identifier
-        Optional<String> odsCode = IdentifierUtil.getOdsCode(locationResource.getIdentifier());
+        Optional<String> odsCode = IdentifierUtil.getOdsSite(locationResource);
         if (odsCode.isPresent()) {
           location.setOrganisationSiteIdentifierOfTreatment(odsCode.get());
 

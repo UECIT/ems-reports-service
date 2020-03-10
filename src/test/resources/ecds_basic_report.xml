@@ -54,8 +54,8 @@
         <ns:GeneralPractice_PatientRegistration>BB2003</ns:GeneralPractice_PatientRegistration>
       </ns:GPRegistration>
       <ns:EmergencyCareAttendanceLocation>
-        <ns:OrganisationSiteIdentifier_OfTreatment>ODSLoc</ns:OrganisationSiteIdentifier_OfTreatment>
-        <ns:EmergencyCareDepartmentType>01</ns:EmergencyCareDepartmentType>
+        <ns:OrganisationSiteIdentifier_OfTreatment>89999</ns:OrganisationSiteIdentifier_OfTreatment>
+        <ns:EmergencyCareDepartmentType>04</ns:EmergencyCareDepartmentType>
       </ns:EmergencyCareAttendanceLocation>
       <ns:AttendanceOccurrence>
         <ns:EmergencyCareAttendanceActivityCharacteristics>

@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.springframework.stereotype.Component;
-import uk.nhs.cdss.reports.constants.Systems;
+import uk.nhs.cdss.reports.constants.FHIRSystems;
 
 /**
  * Stub implementation - this would normally query a SNOMED server to determine relationships
@@ -31,7 +31,7 @@ public class SnomedService {
   public Stream<String> snomedCodesIn(CodeableConcept concept) {
     return concept.getCoding()
         .stream()
-        .filter(coding -> Systems.SNOMED.equals(coding.getSystem()))
+        .filter(coding -> FHIRSystems.SNOMED.equals(coding.getSystem()))
         .map(Coding::getCode);
   }
 }

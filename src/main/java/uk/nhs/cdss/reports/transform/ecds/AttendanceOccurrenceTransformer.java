@@ -75,7 +75,7 @@ public class AttendanceOccurrenceTransformer {
 //    serviceAgreement.setCommissioningSerialNumber("600000");
 
     // Determine ODS code of supplier, issued by SUS
-    IdentifierUtil.getOdsCode(serviceProvider)
+    IdentifierUtil.getOdsOrganization(serviceProvider)
         .ifPresent(serviceAgreement::setOrganisationIdentifierCodeOfProvider);
 
     // Hardcoded commissioner for this service

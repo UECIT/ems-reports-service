@@ -8,7 +8,7 @@ import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-import uk.nhs.cdss.reports.constants.Systems;
+import uk.nhs.cdss.reports.constants.FHIRSystems;
 import uk.nhs.nhsia.datastandards.ecds.OverseasECType;
 import uk.nhs.nhsia.datastandards.ecds.PatientCharacteristicsEmergencyCareStructure;
 import uk.nhs.nhsia.datastandards.ecds.PersonStatedGenderCodeECType;
@@ -30,18 +30,18 @@ public class PatientCharacteristicsTransformer {
       structure.setPersonStatedGenderCode(getGender(patient.getGender()));
     }
 
-    patient.getExtensionsByUrl(Systems.ETHNIC_CODES_URL).stream().findFirst()
+    patient.getExtensionsByUrl(FHIRSystems.ETHNIC_CODES_URL).stream().findFirst()
         .map(extensionToCodeableConcept())
         .map(this::getEthicCategory)
         .ifPresent(structure::setEthnicCategory);
 
     // Would have thought this would come from residentialStatus extension but value sets don't match?
-    patient.getExtensionsByUrl(Systems.RESIDENTIAL_STATUS_URL).stream().findFirst()
+    patient.getExtensionsByUrl(FHIRSystems.RESIDENTIAL_STATUS_URL).stream().findFirst()
         .map(extensionToCodeableConcept())
         .map(this::getAccomodationStatus)
         .ifPresent(structure::setAccommodationStatusSnomedCt);
 
-    Optional<Extension> nhsCommsExtension = patient.getExtensionsByUrl(Systems.NHS_COMMS_URL).stream()
+    Optional<Extension> nhsCommsExtension = patient.getExtensionsByUrl(FHIRSystems.NHS_COMMS_URL).stream()
         .findFirst();
 
     nhsCommsExtension
@@ -56,7 +56,7 @@ public class PatientCharacteristicsTransformer {
           structure.setInterpreterLanguageSnomedCt(language);
         });
 
-    patient.getExtensionsByUrl(Systems.TREATMENT_CATEGORY_URL).stream().findFirst()
+    patient.getExtensionsByUrl(FHIRSystems.TREATMENT_CATEGORY_URL).stream().findFirst()
         .map(extensionToCodeableConcept())
         .map(this::getOverseasECType)
         .ifPresent(structure::setOverseasVisitorChargingCategoryAtCdsActivityDate);
