@@ -15,6 +15,8 @@ import uk.nhs.cdss.reports.Stub;
 import uk.nhs.cdss.reports.model.ReportsDTO;
 import uk.nhs.cdss.reports.service.EncounterReportService;
 import uk.nhs.cdss.reports.service.FhirSession;
+import uk.nhs.cdss.reports.transform.iucds.FixedUUIDProvider;
+import uk.nhs.cdss.reports.transform.iucds.EncounterTransformer;
 import uk.nhs.cdss.reports.transform.iucds.IUCDSReportTransformer;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -28,9 +30,16 @@ public class EncounterReportControllerTest {
 
   private FhirSession fhirSession;
 
+  private IUCDSReportTransformer iucdsReportTransformer;
+
   @Before
   public void setup() {
     fhirSession = new FhirSession(new Reference("http://fhir/Encounter/123"), fhirContext);
+    FixedUUIDProvider uuidProvider = new FixedUUIDProvider();
+    iucdsReportTransformer = new IUCDSReportTransformer(
+        uuidProvider,
+        new EncounterTransformer(uuidProvider)
+    );
   }
 
   @Test
@@ -48,7 +57,7 @@ public class EncounterReportControllerTest {
         new EncounterReportController(
             encounterReportService,
             Stub.ecdsTransformer(),
-            new IUCDSReportTransformer());
+            iucdsReportTransformer);
 
     ResponseEntity<ReportsDTO> result = reportController.generateReports("123");
     System.out.println(result);

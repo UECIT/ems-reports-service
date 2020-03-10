@@ -5,7 +5,10 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.dstu3.model.Coding;
 import uk.nhs.connect.iucds.cda.ucr.CD;
+import uk.nhs.connect.iucds.cda.ucr.CE;
 import uk.nhs.connect.iucds.cda.ucr.CS;
 import uk.nhs.connect.iucds.cda.ucr.CS.Factory;
 import uk.nhs.connect.iucds.cda.ucr.II;
@@ -17,8 +20,8 @@ public class Elements {
    * Creates a new {@link II} ID element with the specified root code system
    *
    * @param addNewId           method to create the ID element in the required parent
-   * @param root             OID code of the ID system/type
-   * @param extension              the ID value
+   * @param root               OID code of the ID system/type
+   * @param extension          the ID value
    * @param assigningAuthority the issuer of the ID - may be null
    * @return
    */
@@ -62,7 +65,7 @@ public class Elements {
    * @param consumer
    * @return the created element
    */
-  public static CS setCode(String system, String code, Consumer<CS> consumer) {
+  public CS setStatusCode(String system, String code, Consumer<CS> consumer) {
     CS statusCode = Factory.newInstance();
     statusCode.setCodeSystem(system);
     statusCode.setCode(code);
@@ -70,8 +73,23 @@ public class Elements {
     return statusCode;
   }
 
+  public CE addCode(Supplier<CE> supplier, String system, String code, String display) {
+    CE ce = supplier.get();
+    ce.setCodeSystem(system);
+    ce.setCode(code);
+    if (StringUtils.isNotEmpty(display)) {
+      ce.setDisplayName(display);
+    }
+    return ce;
+  }
+
+  public static CE addCode(Supplier<CE> supplier, Coding coding) {
+    return addCode(supplier, coding.getSystem(), coding.getCode(), coding.getDisplay());
+  }
+
   /**
-   * Creates a new {@link CD} element using the given supplier and populates it with the code and system
+   * Creates a new {@link CD} element using the given supplier and populates it with the code and
+   * system
    *
    * @param supplier
    * @param system

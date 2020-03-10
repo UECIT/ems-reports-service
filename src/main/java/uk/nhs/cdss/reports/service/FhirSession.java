@@ -12,6 +12,7 @@ import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.DomainResource;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.EpisodeOfCare;
 import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Organization;
@@ -20,13 +21,16 @@ import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
-import org.hl7.fhir.dstu3.model.Resource;
 
 @RequiredArgsConstructor
 public class FhirSession {
 
   private final Reference encounterRef;
   private final FhirContext fhirContext;
+
+  public Reference getEncounterRef() {
+    return encounterRef;
+  }
 
   public Encounter getEncounter() {
     return fhirReader(Encounter.class).apply(encounterRef);
@@ -116,5 +120,9 @@ public class FhirSession {
 
   public Location getLocation(Reference ref) {
     return fhirReader(Location.class).apply(ref);
+  }
+
+  public EpisodeOfCare getEpisodeOfCare(Reference ref) {
+    return fhirReader(EpisodeOfCare.class).apply(ref);
   }
 }

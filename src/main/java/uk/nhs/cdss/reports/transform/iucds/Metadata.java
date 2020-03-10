@@ -9,7 +9,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.xmlbeans.XmlString;
 import org.hl7.fhir.dstu3.model.Consent;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
-import uk.nhs.cdss.reports.transform.iucds.constants.OID;
+import uk.nhs.cdss.reports.constants.IUCDSSystems;
 import uk.nhs.cdss.reports.transform.iucds.constants.Template;
 import uk.nhs.connect.iucds.cda.ucr.CE;
 import uk.nhs.connect.iucds.cda.ucr.ON;
@@ -61,7 +61,7 @@ public class Metadata {
     POCDMT000002UK01Author author = clinicalDocument.addNewAuthor();
 
     TemplateContent contentId = author.addNewContentId();
-    contentId.setRoot(OID.NPFIT_CDA_CONTENT);
+    contentId.setRoot(IUCDSSystems.NPFIT_CDA_CONTENT);
     contentId.setExtension("NPFIT-000081#Role"); // TODO
 
     CE functionCode = author.addNewFunctionCode();
@@ -73,7 +73,7 @@ public class Metadata {
 
     POCDMT000002UK01AssignedAuthor assignedAuthor = author.addNewAssignedAuthor();
 
-    Elements.addId(assignedAuthor::addNewId, OID.LOCAL_PERSON,
+    Elements.addId(assignedAuthor::addNewId, IUCDSSystems.LOCAL_PERSON,
         "author_id", "author_org"); // TODO
   }
 
@@ -95,23 +95,23 @@ public class Metadata {
     POCDMT000002UK01Custodian custodian = clinicalDocument.addNewCustodian();
 
     Elements.addId(custodian::addNewContentId,
-        OID.NPFIT_CDA_CONTENT, Template.ASSIGNED_CUSTODIAN);
+        IUCDSSystems.NPFIT_CDA_CONTENT, Template.ASSIGNED_CUSTODIAN);
 
     POCDMT000002UK01AssignedCustodian assignedCustodian = custodian.addNewAssignedCustodian();
 
     Elements.addId(assignedCustodian::addNewTemplateId,
-        OID.TEMPLATE, Template.ASSIGNED_CUSTODIAN);
+        IUCDSSystems.TEMPLATE, Template.ASSIGNED_CUSTODIAN);
 
     POCDMT000002UK01CustodianOrganization organization = assignedCustodian
         .addNewRepresentedCustodianOrganization();
 
     Elements.addId(organization::addNewTemplateId,
-        OID.TEMPLATE, Template.REPRESENTED_CUSTODIAN_ORGANIZATION);
+        IUCDSSystems.TEMPLATE, Template.REPRESENTED_CUSTODIAN_ORGANIZATION);
 
     // TODO SDS_SITE or SDS_ORG
     // Either the ODS site (preferred), or ODS organisation code of the custodian organisation
     Elements.addId(organization::addNewId,
-        OID.SDS_SITE, "site_id");
+        IUCDSSystems.SDS_SITE, "site_id");
 
     ON orgName = organization.addNewName();
     orgName.set(XmlString.Factory.newValue("Custodian Org Name")); // TODO
@@ -134,7 +134,7 @@ public class Metadata {
 
     // varies depending on whether the receiver is an org or person
     Elements.addId(informationRecipient::addNewContentId,
-        OID.NPFIT_CDA_CONTENT, Template.INTENDED_RECIPIENT_ORG);
+        IUCDSSystems.NPFIT_CDA_CONTENT, Template.INTENDED_RECIPIENT_ORG);
 
     POCDMT000002UK01IntendedRecipient intendedRecipient = informationRecipient
         .addNewIntendedRecipient();
@@ -152,14 +152,14 @@ public class Metadata {
 
       for (Consent consent : consentList) {
         POCDMT000002UK01Consent ce = auth.addNewConsent();
-        Elements.setCode(OID.ACT_STATUS, "completed", ce::setStatusCode);
+        Elements.setStatusCode(IUCDSSystems.ACT_STATUS, "completed", ce::setStatusCode);
 
         Elements.addId(ce::addNewId, consent.getId());
 
         // TODO Filter categories to relevant codes
         if (consent.hasCategory()) {
           String code = consent.getCategoryFirstRep().getCodingFirstRep().getCode();
-          Elements.addConcept(ce::addNewCode, OID.ACT_CONSENT_TYPE, code);
+          Elements.addConcept(ce::addNewCode, IUCDSSystems.ACT_CONSENT_TYPE, code);
         }
       }
     }

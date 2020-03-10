@@ -15,7 +15,7 @@ import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.stereotype.Component;
-import uk.nhs.cdss.reports.constants.Systems;
+import uk.nhs.cdss.reports.constants.FHIRSystems;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.service.FhirSession;
 import uk.nhs.nhsia.datastandards.ecds.AttendanceOccurrenceECStructure.PatientClinicalHistory;
@@ -62,7 +62,7 @@ public class PatientClinicalHistoryTransformer {
 
   private Predicate<Coding> isComorbidCode() {
     return coding -> coding.getCode().equals(COMORBIDITY_CODE)
-      && coding.getSystem().equals(Systems.DIAGNOSIS_ROLE);
+      && coding.getSystem().equals(FHIRSystems.DIAGNOSIS_ROLE);
   }
 
 }

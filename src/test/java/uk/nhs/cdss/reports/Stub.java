@@ -3,7 +3,7 @@ package uk.nhs.cdss.reports;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static uk.nhs.cdss.reports.constants.Systems.DIAGNOSIS_ROLE;
+import static uk.nhs.cdss.reports.constants.FHIRSystems.DIAGNOSIS_ROLE;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -15,6 +15,7 @@ import java.util.List;
 import lombok.experimental.UtilityClass;
 import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.CareConnectIdentifier;
+import org.hl7.fhir.dstu3.model.CareConnectOrganization;
 import org.hl7.fhir.dstu3.model.CareConnectPatient;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
@@ -25,6 +26,7 @@ import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
+import org.hl7.fhir.dstu3.model.EpisodeOfCare;
 import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
@@ -41,8 +43,9 @@ import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralCategory;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralPriority;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestStatus;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.StringType;
-import uk.nhs.cdss.reports.constants.Systems;
+import uk.nhs.cdss.reports.constants.FHIRSystems;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.model.EncounterReportInput.EncounterReportInputBuilder;
 import uk.nhs.cdss.reports.service.CounterService;
@@ -80,7 +83,7 @@ public class Stub {
   private Encounter minimumEncounter() {
     Encounter encounter = new Encounter();
     encounter
-        .setServiceProvider(new Reference(serviceProvider()))
+        .setServiceProvider(ref(serviceProvider()))
         .setId("123");
 
     return encounter;
@@ -92,16 +95,49 @@ public class Stub {
     Encounter encounter = new Encounter();
     encounter
         .setPeriod(new Period().setStart(CALENDAR.getTime()))
-        .setServiceProvider(new Reference(serviceProvider()))
-        .addLocation(new EncounterLocationComponent(new Reference(location())))
-        .addDiagnosis(new DiagnosisComponent(new Reference(condition())).setRole(COMORBIDITY))
-        .addDiagnosis(new DiagnosisComponent(new Reference(condition()))) //NOT CM
-        .addDiagnosis(new DiagnosisComponent(new Reference(procedure())).setRole(COMORBIDITY))
-        .addDiagnosis(new DiagnosisComponent(new Reference(procedure()))) //NOT CM
-        .addDiagnosis(new DiagnosisComponent(new Reference(woundCondition())))
+        .setServiceProvider(ref(serviceProvider()))
+        .addLocation(new EncounterLocationComponent(ref(location())))
+        .addDiagnosis(new DiagnosisComponent(ref(condition())).setRole(COMORBIDITY))
+        .addDiagnosis(new DiagnosisComponent(ref(condition()))) //NOT CM
+        .addDiagnosis(new DiagnosisComponent(ref(procedure())).setRole(COMORBIDITY))
+        .addDiagnosis(new DiagnosisComponent(ref(procedure()))) //NOT CM
+        .addDiagnosis(new DiagnosisComponent(ref(woundCondition())))
+        .setEpisodeOfCare(List.of(ref(episodeOfCare())))
         .setId("123");
 
     return encounter;
+  }
+
+  private static Reference ref(Resource resource) {
+    Reference reference = new Reference(resource);
+    if (resource.hasId()) {
+      reference.setReference(resource.getResourceType().name() + "/" + resource.getId());
+    }
+    return reference;
+  }
+
+  private static EpisodeOfCare episodeOfCare() {
+    EpisodeOfCare episodeOfCare = new EpisodeOfCare();
+    episodeOfCare
+        .setManagingOrganization(ref(managingOrg()))
+        .setCareManager(ref(practitioner()))
+        .setId("123");
+    return episodeOfCare;
+  }
+
+  private static Organization managingOrg() {
+    CareConnectOrganization organization = new CareConnectOrganization();
+    organization
+        .setName("Managing Organization")
+        .addIdentifier(new CareConnectIdentifier()
+            .setSystem(FHIRSystems.ODS_ORGANIZATION)
+            .setValue("AA123"))
+        .setType(List.of(new CodeableConcept()
+            .addCoding(new Coding()
+                .setSystem("org-type")
+                .setCode("MO"))))
+        .setId("123");
+    return organization;
   }
 
   private Condition woundCondition() {
@@ -131,23 +167,30 @@ public class Stub {
                 .setSystem("http://hl7.org/fhir/ValueSet/v3-ServiceDeliveryLocationRoleType")
                 .setCode("ER")))
         .addIdentifier(new CareConnectIdentifier()
-            .setSystem(Systems.ODS)
+            .setSystem(FHIRSystems.ODS_ORGANIZATION)
             .setValue("ODSLoc"));
   }
 
   public Organization serviceProvider() {
-    return new Organization()
+    Organization organization = new Organization();
+    organization
         .setName("Service Provider")
         .addIdentifier(new Identifier()
-            .setSystem(Systems.ODS)
-            .setValue("AA100"));
+            .setSystem(FHIRSystems.ODS_ORGANIZATION)
+            .setValue("AA100"))
+        .setType(List.of(new CodeableConcept()
+            .addCoding(new Coding()
+                .setSystem("org-type")
+                .setCode("SP"))))
+        .setId("serviceProvider");
+    return organization;
   }
 
   public Organization practitionerOrg() {
     return new Organization()
         .setName("General Practice")
         .addIdentifier(new Identifier()
-            .setSystem(Systems.ODS)
+            .setSystem(FHIRSystems.ODS_ORGANIZATION)
             .setValue("BB2003"));
   }
 
@@ -157,7 +200,7 @@ public class Stub {
             .addGiven("Don")
             .setFamily("Quixote"))
         .addIdentifier(new Identifier()
-            .setSystem(Systems.ODS)
+            .setSystem(FHIRSystems.ODS_ORGANIZATION)
             .setValue("CC2003XX"));
   }
 
@@ -166,8 +209,8 @@ public class Stub {
     patient.setBirthDate(new Builder().setDate(2000, 0, 1).build().getTime())
         .setGender(AdministrativeGender.FEMALE)
         .addName(new HumanName().addGiven("Jane").setFamily("Doe"))
-        .addGeneralPractitioner(new Reference(Stub.practitionerOrg()))
-        .addGeneralPractitioner(new Reference(Stub.practitioner()))
+        .addGeneralPractitioner(ref(Stub.practitionerOrg()))
+        .addGeneralPractitioner(ref(Stub.practitioner()))
         .addIdentifier(nhsNumberIdentifierVerified())
         .addAddress(new Address().setPostalCode("PS1 1AA"))
         .setExtension(careConnectExtensions());
@@ -177,20 +220,20 @@ public class Stub {
   }
 
   private List<Extension> careConnectExtensions() {
-    Extension commsExtension = new Extension(Systems.NHS_COMMS_URL, new CodeableConcept());
+    Extension commsExtension = new Extension(FHIRSystems.NHS_COMMS_URL, new CodeableConcept());
     commsExtension.addExtension("language", new StringType("English"));
     return Arrays.asList(
-        new Extension(Systems.ETHNIC_CODES_URL, new CodeableConcept()),
+        new Extension(FHIRSystems.ETHNIC_CODES_URL, new CodeableConcept()),
         commsExtension,
-        new Extension(Systems.RESIDENTIAL_STATUS_URL, new CodeableConcept()),
-        new Extension(Systems.TREATMENT_CATEGORY_URL, new CodeableConcept())
+        new Extension(FHIRSystems.RESIDENTIAL_STATUS_URL, new CodeableConcept()),
+        new Extension(FHIRSystems.TREATMENT_CATEGORY_URL, new CodeableConcept())
     );
   }
 
   public NHSNumberIdentifier nhsNumberIdentifierUnverified() {
     NHSNumberIdentifier nhsNumberIdentifier = new NHSNumberIdentifier();
     nhsNumberIdentifier.setNhsNumberVerificationStatus(
-        new CodeableConcept().addCoding(new Coding(Systems.NHS_NUMBER, "03", "Trace required")))
+        new CodeableConcept().addCoding(new Coding(FHIRSystems.NHS_NUMBER, "03", "Trace required")))
         .setValue("0123456789");
 
     return nhsNumberIdentifier;
@@ -200,7 +243,7 @@ public class Stub {
     NHSNumberIdentifier nhsNumberIdentifier = new NHSNumberIdentifier();
     nhsNumberIdentifier.setNhsNumberVerificationStatus(
         new CodeableConcept()
-            .addCoding(new Coding(Systems.NHS_NUMBER, "01", "Number present and verified")))
+            .addCoding(new Coding(FHIRSystems.NHS_NUMBER, "01", "Number present and verified")))
         .setValue("0123456789");
 
     return nhsNumberIdentifier;
@@ -216,7 +259,7 @@ public class Stub {
             .addCoding(new Coding("sys", "1234567", "display"))))
         .setReasonCode(Collections.singletonList(new CodeableConcept()
             .addCoding(new Coding("sys", "reason", "display"))))
-        .setReasonReference(List.of(new Reference(new Condition()
+        .setReasonReference(List.of(ref(new Condition()
             .setCode(buildSnomedConcept("01010101", "display")))));
 
     referralRequest.setIdBase("123");
@@ -288,7 +331,7 @@ public class Stub {
   }
 
   private CodeableConcept buildSnomedConcept(String value, String display) {
-    return buildConcept(Systems.SNOMED, value, display);
+    return buildConcept(FHIRSystems.SNOMED, value, display);
   }
 
   private CodeableConcept buildConcept(String system, String value, String display) {

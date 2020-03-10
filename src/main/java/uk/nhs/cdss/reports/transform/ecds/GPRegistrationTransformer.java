@@ -36,7 +36,7 @@ public class GPRegistrationTransformer {
         .filter(ReferenceUtil.ofType(Organization.class))
         .findFirst()
         .map(session::getOrganization)
-        .map(IdentifierUtil::getOdsCode) //This could be other codes
+        .map(IdentifierUtil::getOdsOrganization) //This could be other codes
         .map(odsCode -> odsCode.orElse(GP_PRACTICE_NOT_KNOWN))
         .orElse(NO_REGISTERED_GP);
 
@@ -44,7 +44,7 @@ public class GPRegistrationTransformer {
         .filter(ReferenceUtil.ofType(Practitioner.class))
         .findFirst()
         .map(session::getPractitioner)
-        .map(IdentifierUtil::getOdsCode) //PPD Code
+        .map(IdentifierUtil::getOdsOrganization) //PPD Code
         .map(odsCode -> odsCode.orElse(PPD_CODE_NOT_KNOWN))
         .orElse(null);
 

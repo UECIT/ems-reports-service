@@ -1,12 +1,12 @@
 <urn:ClinicalDocument xmlns:urn="urn:hl7-org:v3">
   <urn:typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
   <npf:messageType root="2.16.840.1.113883.2.1.3.2.4.18.17" extension="POCD_RM200001GB02" xmlns:npf="NPFIT:HL7:Localisation"/>
-  <urn:id root="B7534970-0DAC-4D87-A9D1-450578DB987B"/>
+  <urn:id root="7DEA362B-3FAC-3E00-956A-4952A3D4F474"/>
   <urn:code codeSystem="2.16.840.1.113883.2.1.3.2.4.15" code="1066271000000101"/>
   <urn:title>Integrated Urgent Care Report</urn:title>
   <urn:effectiveTime value="20200101000000+0000"/>
   <urn:confidentialityCode codeSystem="2.16.840.1.113883.1.11.16926" code="V" displayName="very restricted"/>
-  <urn:setId root="9CBD7741-FF3D-4475-A895-0AF378DB13D3"/>
+  <urn:setId root="7DEA362B-3FAC-3E00-956A-4952A3D4F474"/>
   <urn:versionNumber value="1"/>
   <urn:recordTarget>
     <npf:contentId root="2.16.840.1.113883.2.1.3.2.4.18.16" extension="COCD_TP145201GB01#PatientRole" xmlns:npf="NPFIT:HL7:Localisation"/>
@@ -41,8 +41,8 @@
     <npf:contentId root="2.16.840.1.113883.2.1.3.2.4.18.16" extension="COCD_TP146232GB01#EncompassingEncounter" xmlns:npf="NPFIT:HL7:Localisation"/>
     <urn:encompassingEncounter>
       <urn:templateId root="2.16.840.1.113883.2.1.3.2.4.18.2" extension="COCD_TP146232GB01#EncompassingEncounter"/>
-      <urn:id root="2.16.840.1.113883.2.1.3.2.4.18.49" extension="journey_id"/>
-      <urn:code code="NHS111Encounter" codeSystem="2.16.840.1.113883.2.1.3.2.4.17.326" displayName="NHS111 Encounter"/>
+      <urn:id root="2.16.840.1.113883.2.1.3.2.4.17.326" extension="http://fhir/Encounter/123"/>
+      <urn:code codeSystem="NONAC" code="2.16.840.1.113883.1.11.13955" displayName="Virtual"/>
       <urn:effectiveTime>
         <urn:low value="20200101000000+0000"/>
         <urn:high value="20200101000000+0000"/>
@@ -53,7 +53,7 @@
     <urn:structuredBody>
       <urn:component>
         <urn:section>
-          <urn:id root="55A0814B-2B42-4685-8A22-F6F83363A6DD"/>
+          <urn:id root="7DEA362B-3FAC-3E00-956A-4952A3D4F474"/>
         </urn:section>
       </urn:component>
     </urn:structuredBody>

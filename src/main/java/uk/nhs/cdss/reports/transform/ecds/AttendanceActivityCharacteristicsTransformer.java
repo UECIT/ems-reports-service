@@ -13,7 +13,7 @@ import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.springframework.stereotype.Service;
-import uk.nhs.cdss.reports.constants.Systems;
+import uk.nhs.cdss.reports.constants.FHIRSystems;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.nhsia.datastandards.ecds.AttendCatECType;
 import uk.nhs.nhsia.datastandards.ecds.AttendCatECType.Enum;
@@ -96,7 +96,7 @@ public class AttendanceActivityCharacteristicsTransformer {
 
       Condition condition = input.getSession().getCondition(reasonRef);
       Coding coding = condition.getCode().getCodingFirstRep();
-      Preconditions.checkArgument(Systems.SNOMED.equals(coding.getSystem()),
+      Preconditions.checkArgument(FHIRSystems.SNOMED.equals(coding.getSystem()),
           "Condition code must be SNOMED");
       Preconditions.checkArgument(coding.getCode().length() <= 18,
           "Primary concern snomed code must be less than 18 characters");
@@ -112,7 +112,7 @@ public class AttendanceActivityCharacteristicsTransformer {
 
   private String getAcuityCode(CodeableConcept priority) {
     Coding coding = priority.getCodingFirstRep();
-    Preconditions.checkArgument(Systems.ACT_PRIORITY.equals(coding.getSystem()),
+    Preconditions.checkArgument(FHIRSystems.ACT_PRIORITY.equals(coding.getSystem()),
         "Unexpected priority coding system");
     switch (coding.getCode()) {
       case "CR": // Callback

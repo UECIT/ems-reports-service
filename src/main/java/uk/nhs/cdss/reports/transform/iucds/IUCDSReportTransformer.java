@@ -3,19 +3,18 @@ package uk.nhs.cdss.reports.transform.iucds;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlString;
 import org.springframework.stereotype.Service;
+import uk.nhs.cdss.reports.constants.IUCDSSystems;
 import uk.nhs.cdss.reports.controllers.EncounterReportController;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.transform.ReportXMLTransformer;
 import uk.nhs.cdss.reports.transform.TransformationException;
 import uk.nhs.cdss.reports.transform.ValidationException;
-import uk.nhs.cdss.reports.transform.iucds.constants.OID;
 import uk.nhs.connect.iucds.cda.ucr.CE;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
@@ -23,6 +22,9 @@ import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
 @Service
 @AllArgsConstructor
 public class IUCDSReportTransformer implements ReportXMLTransformer {
+
+  private final UUIDProvider uuidProvider;
+  private final EncounterTransformer encounterTransformer;
 
   @Override
   public ClinicalDocumentDocument1 transform(EncounterReportInput input)
@@ -44,8 +46,8 @@ public class IUCDSReportTransformer implements ReportXMLTransformer {
     Metadata.buildInformationRecipient(clinicalDocument, input);
     Metadata.buildConsent(clinicalDocument, input);
 
-    Encounter.buildComponentOf(clinicalDocument, input);
-    Encounter.buildBody(clinicalDocument, input);
+    encounterTransformer.buildComponentOf(clinicalDocument, input);
+    encounterTransformer.buildBody(clinicalDocument, input);
   }
 
   private POCDMT000002UK01ClinicalDocument1 buildClinicalDocument(
@@ -53,12 +55,12 @@ public class IUCDSReportTransformer implements ReportXMLTransformer {
     POCDMT000002UK01ClinicalDocument1 clinicalDocument = document.addNewClinicalDocument();
 
     CE code = clinicalDocument.addNewCode();
-    code.setCodeSystem(OID.SNOMED);
+    code.setCodeSystem(IUCDSSystems.SNOMED);
     code.setCode("1066271000000101");
 
     // TODO determine correct confidentiality level
     code = clinicalDocument.addNewConfidentialityCode();
-    code.setCodeSystem(OID.CONFIDENTIALITY);
+    code.setCodeSystem(IUCDSSystems.CONFIDENTIALITY);
     code.setCode("V");
     code.setDisplayName("very restricted");
 
@@ -66,20 +68,20 @@ public class IUCDSReportTransformer implements ReportXMLTransformer {
         .setValue(Metadata.format(input.getDateOfPreparation().getTime()));
 
     clinicalDocument.addNewId()
-        .setRoot(UUID.randomUUID().toString().toUpperCase());
+        .setRoot(uuidProvider.get());
 
     Elements.addId(clinicalDocument::addNewMessageType,
-        OID.MESSAGE_TYPE, "POCD_RM200001GB02");
+        IUCDSSystems.MESSAGE_TYPE, "POCD_RM200001GB02");
 
     // TODO Determine set this report belongs to
     clinicalDocument.addNewSetId()
-        .setRoot(UUID.randomUUID().toString().toUpperCase());
+        .setRoot(uuidProvider.get());
 
     clinicalDocument.addNewTitle()
         .set(XmlString.type.newValue("Integrated Urgent Care Report"));
 
     Elements.addId(clinicalDocument::addNewTypeId,
-        OID.HL7_RMIMS, "POCD_HD000040");
+        IUCDSSystems.HL7_RMIMS, "POCD_HD000040");
 
     // TODO add document versioning if required
     clinicalDocument.addNewVersionNumber().setValue(BigInteger.ONE);
