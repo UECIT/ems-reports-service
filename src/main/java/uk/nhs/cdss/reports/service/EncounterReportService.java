@@ -9,6 +9,7 @@ import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.stereotype.Service;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
+import uk.nhs.cdss.reports.model.Participants;
 
 @Service
 @AllArgsConstructor
@@ -22,11 +23,16 @@ public class EncounterReportService {
 
     var encounter = fhirSession.getEncounter();
 
-    var practitioners = encounter.getParticipant()
+    var participantRefs = encounter.getParticipant()
         .stream()
         .map(EncounterParticipantComponent::getIndividual)
         .filter(id -> id.getReferenceElement().getResourceType().equals("Practitioner"))
         .collect(Collectors.toUnmodifiableList());
+
+    Participants participants = Participants.builder()
+        .practitioners(fhirSession.getPractitioners(participantRefs))
+        .relatedPeople(fhirSession.getRelatedPeople(participantRefs))
+        .build();
 
     var patientRef = encounter.getSubject();
     return EncounterReportInput.builder()
@@ -34,7 +40,7 @@ public class EncounterReportService {
         .encounter(encounter)
         .patient(fhirSession.getPatient(patientRef))
         .referralRequest(fhirSession.getReferralRequests())
-        .participants(fhirSession.getParticipants(practitioners))
+        .participants(participants)
         .procedures(fhirSession.getProcedures())
         .observations(fhirSession.getObservations())
         .consent(fhirSession.getConsent())

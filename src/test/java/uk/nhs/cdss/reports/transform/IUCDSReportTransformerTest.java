@@ -15,8 +15,8 @@ import uk.nhs.cdss.reports.Stub;
 import uk.nhs.cdss.reports.controllers.EncounterReportController;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.service.FhirSession;
-import uk.nhs.cdss.reports.transform.iucds.FixedUUIDProvider;
 import uk.nhs.cdss.reports.transform.iucds.EncounterTransformer;
+import uk.nhs.cdss.reports.transform.iucds.FixedUUIDProvider;
 import uk.nhs.cdss.reports.transform.iucds.IUCDSReportTransformer;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 

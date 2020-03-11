@@ -1,5 +1,7 @@
 package uk.nhs.cdss.reports.service;
 
+import static uk.nhs.cdss.reports.util.ReferenceUtil.ofType;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.gclient.ReferenceClientParam;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
+import org.hl7.fhir.dstu3.model.RelatedPerson;
 
 @RequiredArgsConstructor
 public class FhirSession {
@@ -96,13 +99,25 @@ public class FhirSession {
     return fhirReader(Practitioner.class).apply(ref);
   }
 
+  public RelatedPerson getRelatedPerson(Reference ref) {
+    return fhirReader(RelatedPerson.class).apply(ref);
+  }
+
   public Condition getCondition(Reference ref) {
     return fhirReader(Condition.class).apply(ref);
   }
 
-  public List<Practitioner> getParticipants(List<Reference> participants) {
+  public List<Practitioner> getPractitioners(List<Reference> participants) {
     return participants.stream()
+        .filter(ofType(Practitioner.class))
         .map(fhirReader(Practitioner.class))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public List<RelatedPerson> getRelatedPeople(List<Reference> participants) {
+    return participants.stream()
+        .filter(ofType(RelatedPerson.class))
+        .map(fhirReader(RelatedPerson.class))
         .collect(Collectors.toUnmodifiableList());
   }
 

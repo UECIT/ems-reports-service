@@ -4,16 +4,21 @@ import com.google.common.base.Preconditions;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.XmlString.Factory;
 import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.ContactPoint;
+import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.EpisodeOfCare;
 import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Period;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.PrimitiveType;
+import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.ResourceType;
 import org.springframework.stereotype.Service;
 import uk.nhs.cdss.reports.constants.FHIRSystems;
 import uk.nhs.cdss.reports.constants.IUCDSSystems;
@@ -27,6 +32,7 @@ import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Component1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Component2;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Component3;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01EncompassingEncounter;
+import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01EncounterParticipant;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01HealthCareFacility;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Location;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Organization;
@@ -34,6 +40,7 @@ import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Person;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Place;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Section;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01StructuredBody;
+import uk.nhs.connect.iucds.cda.ucr.XEncounterParticipant;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +60,7 @@ public class EncounterTransformer {
   void buildComponentOf(POCDMT000002UK01ClinicalDocument1 clinicalDocument,
       EncounterReportInput input) {
 
-    org.hl7.fhir.dstu3.model.Encounter encounter = input.getEncounter();
+    Encounter encounter = input.getEncounter();
 
     POCDMT000002UK01Component1 componentOf = clinicalDocument.addNewComponentOf();
 
@@ -95,13 +102,45 @@ public class EncounterTransformer {
 
     buildLocation(encompassingEncounter, input);
     buildResponsibleParty(encompassingEncounter, input);
+    buildEncounterParticipant(encompassingEncounter, input);
+  }
+
+  private void buildEncounterParticipant(POCDMT000002UK01EncompassingEncounter encompassingEncounter,
+      EncounterReportInput input) {
+    Encounter encounter = input.getEncounter();
+
+    if (!encounter.hasParticipant()) {
+      return;
+    }
+
+    for (EncounterParticipantComponent participant : encounter.getParticipant()) {
+      Reference individual = participant.getIndividual();
+
+      if (individual.getReferenceElement().getResourceType()
+          .equals(ResourceType.Practitioner.name())) {
+        POCDMT000002UK01EncounterParticipant encounterParticipant = encompassingEncounter
+            .addNewEncounterParticipant();
+        CodeableConcept code = participant.getTypeFirstRep();
+        encounterParticipant.setTypeCode(
+            XEncounterParticipant.Enum.forString(code.getCodingFirstRep().getCode()));
+
+        POCDMT000002UK01AssignedEntity assignedEntity = encounterParticipant
+            .addNewAssignedEntity();
+        Elements.addId(assignedEntity::addNewId, uuidProvider.get());
+
+        Practitioner practitioner = input.getSession().getPractitioner(individual);
+        assignedEntity.addNewAssignedPerson()
+            .addNewName()
+            .set(Factory.newValue(practitioner.getNameFirstRep().getNameAsSingleString()));
+      }
+    }
   }
 
   private void buildResponsibleParty(
       POCDMT000002UK01EncompassingEncounter encompassingEncounter,
       EncounterReportInput input) {
 
-    org.hl7.fhir.dstu3.model.Encounter encounter = input.getEncounter();
+    Encounter encounter = input.getEncounter();
     if (!encounter.hasEpisodeOfCare()) {
       return;
     }
@@ -125,8 +164,7 @@ public class EncounterTransformer {
       POCDMT000002UK01Person person = responsibleParty.addNewAssignedPerson();
       person.addNewName()
           .set(XmlString.Factory.newValue(
-              careManager.getNameFirstRep().getGivenAsSingleString() + " " +
-                  careManager.getNameFirstRep().getFamily()));
+              careManager.getNameFirstRep().getNameAsSingleString()));
     }
     if (episodeOfCare.hasManagingOrganization()) {
       Organization managingOrg = input.getSession()

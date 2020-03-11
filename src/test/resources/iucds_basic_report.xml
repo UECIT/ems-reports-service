@@ -66,6 +66,14 @@
           </urn:representedOrganization>
         </urn:assignedEntity>
       </urn:responsibleParty>
+      <urn:encounterParticipant typeCode="ADM">
+        <urn:assignedEntity>
+          <urn:id root="7DEA362B-3FAC-3E00-956A-4952A3D4F474"/>
+          <urn:assignedPerson>
+            <urn:name>Don Quixote</urn:name>
+          </urn:assignedPerson>
+        </urn:assignedEntity>
+      </urn:encounterParticipant>
       <urn:location>
         <urn:healthCareFacility>
           <urn:code codeSystem="2.16.840.1.113883.1.11.17660" code="ER"/>

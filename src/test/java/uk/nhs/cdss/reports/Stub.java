@@ -25,6 +25,7 @@ import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
+import org.hl7.fhir.dstu3.model.Encounter.EncounterParticipantComponent;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.EpisodeOfCare;
 import org.hl7.fhir.dstu3.model.Extension;
@@ -43,6 +44,7 @@ import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralCategory;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralPriority;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestStatus;
+import org.hl7.fhir.dstu3.model.RelatedPerson;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.StringType;
 import uk.nhs.cdss.reports.constants.FHIRSystems;
@@ -103,6 +105,14 @@ public class Stub {
         .addDiagnosis(new DiagnosisComponent(ref(procedure()))) //NOT CM
         .addDiagnosis(new DiagnosisComponent(ref(woundCondition())))
         .setEpisodeOfCare(List.of(ref(episodeOfCare())))
+        .addParticipant(new EncounterParticipantComponent()
+          .setIndividual(ref(practitioner()))
+          .addType(new CodeableConcept()
+              .addCoding(new Coding("participationtype", "ADM", "admitter"))))
+        .addParticipant(new EncounterParticipantComponent()
+            .setIndividual(ref(relatedPerson()))
+            .addType(new CodeableConcept()
+                .addCoding(new Coding("participationtype", "CON", "consultant"))))
         .setId("123");
 
     return encounter;
@@ -195,13 +205,16 @@ public class Stub {
   }
 
   public Practitioner practitioner() {
-    return new Practitioner()
+    Practitioner practitioner =  new Practitioner()
         .addName(new HumanName()
             .addGiven("Don")
             .setFamily("Quixote"))
         .addIdentifier(new Identifier()
             .setSystem(FHIRSystems.ODS_ORGANIZATION)
             .setValue("CC2003XX"));
+
+    practitioner.setIdBase("123");
+    return practitioner;
   }
 
   public CareConnectPatient patient() {
@@ -347,5 +360,14 @@ public class Stub {
         .setId("consent");
 
     return consent;
+  }
+
+  public RelatedPerson relatedPerson() {
+    RelatedPerson relatedPerson = new RelatedPerson()
+        .addName(new HumanName()
+          .addGiven("Homer")
+          .setFamily("Simpson"));
+    relatedPerson.setIdBase("132");
+    return relatedPerson;
   }
 }
