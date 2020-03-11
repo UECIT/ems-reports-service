@@ -8,7 +8,6 @@ import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Procedure;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 import uk.nhs.cdss.reports.service.FhirSession;
@@ -21,7 +20,7 @@ public class EncounterReportInput {
   List<ReferralRequest> referralRequest;
   Encounter encounter;
   Patient patient;
-  List<Practitioner> participants;
+  Participants participants;
   List<Procedure> procedures;
   List<Observation> observations;
   FhirSession session;

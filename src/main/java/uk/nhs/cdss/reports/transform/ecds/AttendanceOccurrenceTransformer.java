@@ -41,8 +41,11 @@ public class AttendanceOccurrenceTransformer {
     // Required
     attendanceStructure.setEmergencyCareAttendanceActivityCharacteristics(
         activityTransformer.transformActivity(input));
-    attendanceStructure.setCareProfessionalsEmergencyCareArray(
-        transformProfessionals(input.getParticipants()));
+
+    if (input.getParticipants() != null) {
+      attendanceStructure.setCareProfessionalsEmergencyCareArray(
+          transformProfessionals(input.getParticipants().getPractitioners()));
+    }
 
     attendanceStructure.setServiceAgreementDetails(transformServiceAgreement(input));
     attendanceStructure.setReferralsToOtherServicesArray(
