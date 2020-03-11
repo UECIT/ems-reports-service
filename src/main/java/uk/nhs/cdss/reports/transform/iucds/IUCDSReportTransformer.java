@@ -25,6 +25,7 @@ public class IUCDSReportTransformer implements ReportXMLTransformer {
 
   private final UUIDProvider uuidProvider;
   private final EncounterTransformer encounterTransformer;
+  private final ParticipantTransformer participantTransformer;
 
   @Override
   public ClinicalDocumentDocument1 transform(EncounterReportInput input)
@@ -41,6 +42,8 @@ public class IUCDSReportTransformer implements ReportXMLTransformer {
     POCDMT000002UK01ClinicalDocument1 clinicalDocument = buildClinicalDocument(document, input);
 
     Patient.buildRecordTarget(clinicalDocument, input);
+    participantTransformer.transformParticipant(clinicalDocument, input);
+
     Metadata.buildAuthor(clinicalDocument, input);
     Metadata.buildCustodian(clinicalDocument, input);
     Metadata.buildInformationRecipient(clinicalDocument, input);

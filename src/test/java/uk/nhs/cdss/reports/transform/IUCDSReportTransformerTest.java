@@ -18,6 +18,7 @@ import uk.nhs.cdss.reports.service.FhirSession;
 import uk.nhs.cdss.reports.transform.iucds.EncounterTransformer;
 import uk.nhs.cdss.reports.transform.iucds.FixedUUIDProvider;
 import uk.nhs.cdss.reports.transform.iucds.IUCDSReportTransformer;
+import uk.nhs.cdss.reports.transform.iucds.ParticipantTransformer;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 
 public class IUCDSReportTransformerTest {
@@ -35,13 +36,14 @@ public class IUCDSReportTransformerTest {
     FixedUUIDProvider uuidProvider = new FixedUUIDProvider();
     iucdsReportTransformer = new IUCDSReportTransformer(
         uuidProvider,
-        new EncounterTransformer(uuidProvider));
+        new EncounterTransformer(uuidProvider),
+        new ParticipantTransformer());
   }
 
   // TODO remove expected comparison failure - requires deterministic ID generation
   @Test
   public void empty_report_input() throws IOException, TransformationException {
-    EncounterReportInput encounterReportInput = Stub.input()
+    EncounterReportInput encounterReportInput = Stub.inputIUCDS()
         .session(fhirSession)
         .build();
 
@@ -55,7 +57,7 @@ public class IUCDSReportTransformerTest {
 
   @Test
   public void basic_report_input() throws IOException, TransformationException {
-    EncounterReportInput encounterReportInput = Stub.input()
+    EncounterReportInput encounterReportInput = Stub.inputIUCDS()
         .session(fhirSession)
         .encounter(Stub.encounter())
         .patient(Stub.patient())

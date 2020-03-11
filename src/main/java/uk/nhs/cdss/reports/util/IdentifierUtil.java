@@ -24,6 +24,10 @@ public class IdentifierUtil {
     return getIdForSystem(location.getIdentifier(), FHIRSystems.ODS_SITE);
   }
 
+  public Optional<String> getOdsSite(Organization organization) {
+    return getIdForSystem(organization.getIdentifier(), FHIRSystems.ODS_SITE);
+  }
+
   public Optional<String> getIdForSystem(Collection<Identifier> identifiers, String system) {
     return identifiers.stream()
         .filter(identifier -> identifier.getSystem().equals(system))

@@ -18,6 +18,7 @@ import uk.nhs.cdss.reports.service.FhirSession;
 import uk.nhs.cdss.reports.transform.iucds.FixedUUIDProvider;
 import uk.nhs.cdss.reports.transform.iucds.EncounterTransformer;
 import uk.nhs.cdss.reports.transform.iucds.IUCDSReportTransformer;
+import uk.nhs.cdss.reports.transform.iucds.ParticipantTransformer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EncounterReportControllerTest {
@@ -38,14 +39,15 @@ public class EncounterReportControllerTest {
     FixedUUIDProvider uuidProvider = new FixedUUIDProvider();
     iucdsReportTransformer = new IUCDSReportTransformer(
         uuidProvider,
-        new EncounterTransformer(uuidProvider)
+        new EncounterTransformer(uuidProvider),
+        new ParticipantTransformer()
     );
   }
 
   @Test
   public void generateReports() {
     when(encounterReportService.createEncounterReportInput(any())).thenReturn(
-        Stub.input()
+        Stub.inputECDS()
             .session(fhirSession)
             .patient(Stub.patient())
             .referralRequest(Stub.referralRequest())

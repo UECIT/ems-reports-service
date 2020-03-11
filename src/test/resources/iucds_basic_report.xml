@@ -37,6 +37,20 @@
     <npf:contentId root="2.16.840.1.113883.2.1.3.2.4.18.16" extension="COCD_TP145203GB03#IntendedRecipient" xmlns:npf="NPFIT:HL7:Localisation"/>
     <urn:intendedRecipient/>
   </urn:informationRecipient>
+  <urn:participant typeCode="CALLBCK">
+    <urn:associatedEntity classCode="ASSIGNED">
+      <urn:id root="2.16.840.1.113883.2.1.3.2.4.19.2" extension="AA122"/>
+      <urn:code codeSystem="org-type" code="SP"/>
+      <urn:telecom value="tel:0123456789"/>
+      <urn:associatedPerson>
+        <urn:name>Homer Simpson</urn:name>
+      </urn:associatedPerson>
+      <urn:scopingOrganization>
+        <urn:id root="2.16.840.1.113883.2.1.4.3" extension="AA100"/>
+        <urn:name>Service Provider</urn:name>
+      </urn:scopingOrganization>
+    </urn:associatedEntity>
+  </urn:participant>
   <urn:authorization>
     <urn:consent>
       <urn:id root="consent"/>
@@ -84,6 +98,7 @@
             <urn:id root="serviceProvider"/>
             <urn:id root="2.16.840.1.113883.2.1.4.3" extension="AA100"/>
             <urn:name>Service Provider</urn:name>
+            <urn:telecom value="tel:0123456789"/>
             <urn:standardIndustryClassCode codeSystem="org-type" code="SP"/>
           </urn:serviceProviderOrganization>
         </urn:healthCareFacility>
