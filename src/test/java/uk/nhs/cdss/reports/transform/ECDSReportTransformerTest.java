@@ -4,10 +4,8 @@ import ca.uhn.fhir.context.FhirContext;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.hl7.fhir.dstu3.model.CareConnectPatient;
-import org.hl7.fhir.dstu3.model.Encounter.EncounterLocationComponent;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +34,7 @@ public class ECDSReportTransformerTest {
 
   @Test
   public void empty_report_input() throws IOException, TransformationException {
-    EncounterReportInput encounterReportInput = Stub.input()
+    EncounterReportInput encounterReportInput = Stub.inputECDS()
         .session(fhirSession)
         .patient(new CareConnectPatient()
           .addIdentifier(Stub.nhsNumberIdentifierUnverified()))
@@ -52,7 +50,7 @@ public class ECDSReportTransformerTest {
 
   @Test
   public void basic_report_input() throws IOException, TransformationException {
-    EncounterReportInput encounterReportInput = Stub.input()
+    EncounterReportInput encounterReportInput = Stub.inputECDS()
         .session(fhirSession)
         .encounter(Stub.encounter())
         .patient(Stub.patient())

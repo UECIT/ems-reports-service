@@ -229,7 +229,7 @@ public class EncounterTransformer {
 
       if (organization.hasTelecom()) {
         for (ContactPoint contactPoint : organization.getTelecom()) {
-          orgElement.addNewTelecom().setValue(contactPoint.getValue());
+          orgElement.addNewTelecom().setValue("tel:" + contactPoint.getValue());
         }
       }
       if (organization.hasAddress()) {

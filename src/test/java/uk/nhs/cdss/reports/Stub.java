@@ -21,6 +21,8 @@ import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Consent;
+import org.hl7.fhir.dstu3.model.ContactPoint;
+import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointUse;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.DiagnosisComponent;
@@ -35,6 +37,7 @@ import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.NHSNumberIdentifier;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Organization;
+import org.hl7.fhir.dstu3.model.Organization.OrganizationContactComponent;
 import org.hl7.fhir.dstu3.model.Period;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Procedure;
@@ -76,17 +79,31 @@ public class Stub {
       .setDate(2020, 0, 1)
       .build();
 
-  public EncounterReportInputBuilder input() {
+  public EncounterReportInputBuilder inputECDS() {
     return EncounterReportInput.builder()
         .dateOfPreparation(CALENDAR)
-        .encounter(minimumEncounter());
+        .encounter(minimumEncounterECDS());
   }
 
-  private Encounter minimumEncounter() {
+  public EncounterReportInputBuilder inputIUCDS() {
+    return EncounterReportInput.builder()
+        .dateOfPreparation(CALENDAR)
+        .encounter(minimumEncounterIUCDS());
+  }
+
+  private Encounter minimumEncounterECDS() {
     Encounter encounter = new Encounter();
     encounter
-        .setServiceProvider(ref(serviceProvider()))
+        .setServiceProvider(ref(minimumServiceProvider()))
         .setId("123");
+
+    return encounter;
+  }
+
+
+  private Encounter minimumEncounterIUCDS() {
+    Encounter encounter = new Encounter();
+    encounter.setId("123");
 
     return encounter;
   }
@@ -170,7 +187,7 @@ public class Stub {
   }
 
   public Location location() {
-    return new Location()
+    Location location = new Location()
         .setName("Location")
         .setType(new CodeableConcept()
             .addCoding(new Coding()
@@ -179,7 +196,27 @@ public class Stub {
         .addIdentifier(new CareConnectIdentifier()
             .setSystem(FHIRSystems.ODS_ORGANIZATION)
             .setValue("ODSLoc"));
+
+    location.setIdBase("123");
+    return location;
   }
+
+  public Organization minimumServiceProvider() {
+    Organization organization = new Organization();
+    organization
+        .setName("Service Provider")
+        .addIdentifier(new Identifier()
+            .setSystem(FHIRSystems.ODS_ORGANIZATION)
+            .setValue("AA100"))
+        .setType(List.of(new CodeableConcept()
+            .addCoding(new Coding()
+                .setSystem("org-type")
+                .setCode("SP"))))
+        .setId("serviceProvider");
+
+    return organization;
+  }
+
 
   public Organization serviceProvider() {
     Organization organization = new Organization();
@@ -188,6 +225,14 @@ public class Stub {
         .addIdentifier(new Identifier()
             .setSystem(FHIRSystems.ODS_ORGANIZATION)
             .setValue("AA100"))
+        .addIdentifier(new Identifier()
+            .setSystem(FHIRSystems.ODS_SITE)
+            .setValue("AA122"))
+        .addTelecom(new ContactPoint()
+            .setUse(ContactPointUse.WORK)
+            .setValue("0123456789"))
+        .addContact(new OrganizationContactComponent()
+            .setName(new HumanName().addGiven("Homer").setFamily("Simpson")))
         .setType(List.of(new CodeableConcept()
             .addCoding(new Coding()
                 .setSystem("org-type")
