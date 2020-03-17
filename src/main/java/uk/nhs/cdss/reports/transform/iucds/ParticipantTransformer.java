@@ -57,8 +57,12 @@ public class ParticipantTransformer {
         .ifPresent(siteCode -> Elements.addId(associatedEntity::addNewId,
             IUCDSSystems.SDS_SITE, siteCode));
 
-    Elements.addCode(
-        associatedEntity::addNewCode, organization.getTypeFirstRep().getCodingFirstRep());
+    if (organization.hasType() && organization.getTypeFirstRep().hasCoding()) {
+      Elements.addCode(
+          associatedEntity::addNewCode,
+          organization.getTypeFirstRep().getCodingFirstRep());
+    }
+
     associatedEntity.setClassCode("ASSIGNED");
     return associatedEntity;
   }

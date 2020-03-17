@@ -14,7 +14,7 @@ import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.service.CounterService;
 import uk.nhs.cdss.reports.transform.ReportXMLTransformer;
 import uk.nhs.cdss.reports.transform.TransformationException;
-import uk.nhs.cdss.reports.transform.ValidationException;
+import uk.nhs.cdss.reports.transform.XMLValidator;
 import uk.nhs.nhsia.datastandards.ecds.CDSActivityDateType;
 import uk.nhs.nhsia.datastandards.ecds.CDSApplicableDateType;
 import uk.nhs.nhsia.datastandards.ecds.CDSApplicableTimeType;
@@ -59,7 +59,7 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
     buildMessage(interchange, input, header);
     buildInterchangeTrailer(interchange, header);
 
-    validate(document);
+    XMLValidator.validate(document);
 
     return document;
   }
@@ -174,31 +174,5 @@ public class ECDSReportTransformer implements ReportXMLTransformer {
     // Required
     trailer.setCDSInterchangeControlReference(header.getCDSInterchangeControlReference());
     trailer.setCDSInterchangeControlCount(1);
-  }
-
-  private void validate(CDSXMLInterchangeDocument document) throws TransformationException {
-    XmlOptions validateOptions = new XmlOptions();
-    ArrayList<XmlError> errorList = new ArrayList<>();
-    validateOptions.setErrorListener(errorList);
-
-    // Validate the XML.
-    boolean isValid = document.validate(validateOptions);
-
-    // If the XML isn't valid, loop through the listener's contents,
-    // printing contained messages.
-    if (!isValid) {
-      StringBuilder message = new StringBuilder("Validation failed:\n");
-      for (XmlError error : errorList) {
-        message.append(error.getMessage()).append("\n");
-      }
-
-      try {
-        message.append(EncounterReportController.prettyPrint(document));
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-
-      throw new ValidationException(message.toString());
-    }
   }
 }

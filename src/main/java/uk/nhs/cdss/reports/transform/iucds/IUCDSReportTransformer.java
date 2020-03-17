@@ -1,20 +1,14 @@
 package uk.nhs.cdss.reports.transform.iucds;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import lombok.AllArgsConstructor;
-import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlString;
 import org.springframework.stereotype.Service;
 import uk.nhs.cdss.reports.constants.IUCDSSystems;
-import uk.nhs.cdss.reports.controllers.EncounterReportController;
 import uk.nhs.cdss.reports.model.EncounterReportInput;
 import uk.nhs.cdss.reports.transform.ReportXMLTransformer;
 import uk.nhs.cdss.reports.transform.TransformationException;
-import uk.nhs.cdss.reports.transform.ValidationException;
+import uk.nhs.cdss.reports.transform.XMLValidator;
 import uk.nhs.connect.iucds.cda.ucr.CE;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
@@ -33,7 +27,7 @@ public class IUCDSReportTransformer implements ReportXMLTransformer {
     ClinicalDocumentDocument1 document = ClinicalDocumentDocument1.Factory.newInstance();
     buildMessage(document, input);
 
-    validate(document);
+    XMLValidator.validate(document);
 
     return document;
   }
@@ -89,30 +83,5 @@ public class IUCDSReportTransformer implements ReportXMLTransformer {
     // TODO add document versioning if required
     clinicalDocument.addNewVersionNumber().setValue(BigInteger.ONE);
     return clinicalDocument;
-  }
-
-  private void validate(XmlObject document) throws TransformationException {
-    XmlOptions validateOptions = new XmlOptions();
-    ArrayList<XmlError> errorList = new ArrayList<>();
-    validateOptions.setErrorListener(errorList);
-
-    // Validate the XML
-    boolean isValid = document.validate(validateOptions);
-
-    // If the XML isn't valid, loop through the listener's contents,
-    // printing contained messages.
-    if (!isValid) {
-      StringBuilder message = new StringBuilder("Validation failed:\n");
-      for (XmlError error : errorList) {
-        message.append(error.getMessage()).append("\n");
-      }
-
-      try {
-        System.out.println(message);
-        System.out.println(EncounterReportController.prettyPrint(document));
-      } catch (IOException e) {
-      }
-      throw new ValidationException(message.toString());
-    }
   }
 }
