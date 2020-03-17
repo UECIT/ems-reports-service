@@ -41,9 +41,8 @@ public class EncounterReportController {
         .createEncounterReportInput(new ReferenceParam(encounterRef));
 
     try {
-      CDSXMLInterchangeDocument ecdsReport = ecdsReportTransformer.transform(encounterReportInput);
-      ClinicalDocumentDocument1 iucdsReport = iucdsReportTransformer
-          .transform(encounterReportInput);
+      var ecdsReport = ecdsReportTransformer.transform(encounterReportInput);
+      var iucdsReport = iucdsReportTransformer.transform(encounterReportInput);
 
       ReportsDTO reportsDTO = ReportsDTO.builder()
           .ecds(prettyPrint(ecdsReport))
