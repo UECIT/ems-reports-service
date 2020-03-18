@@ -15,6 +15,7 @@ import uk.nhs.cdss.reports.Stub;
 import uk.nhs.cdss.reports.model.ReportsDTO;
 import uk.nhs.cdss.reports.service.EncounterReportService;
 import uk.nhs.cdss.reports.service.FhirSession;
+import uk.nhs.cdss.reports.transform.ecds.Identifiers;
 import uk.nhs.cdss.reports.transform.iucds.FixedUUIDProvider;
 import uk.nhs.cdss.reports.transform.iucds.EncounterTransformer;
 import uk.nhs.cdss.reports.transform.iucds.IUCDSReportTransformer;
@@ -40,7 +41,8 @@ public class EncounterReportControllerTest {
     iucdsReportTransformer = new IUCDSReportTransformer(
         uuidProvider,
         new EncounterTransformer(uuidProvider),
-        new ParticipantTransformer()
+        new ParticipantTransformer(),
+        Stub.identifiers()
     );
   }
 

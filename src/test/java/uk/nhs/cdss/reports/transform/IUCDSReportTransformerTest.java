@@ -37,7 +37,8 @@ public class IUCDSReportTransformerTest {
     iucdsReportTransformer = new IUCDSReportTransformer(
         uuidProvider,
         new EncounterTransformer(uuidProvider),
-        new ParticipantTransformer());
+        new ParticipantTransformer(),
+        Stub.identifiers());
   }
 
   // TODO remove expected comparison failure - requires deterministic ID generation
@@ -47,7 +48,7 @@ public class IUCDSReportTransformerTest {
         .session(fhirSession)
         .build();
 
-    ClinicalDocumentDocument1 output = iucdsReportTransformer.transform(encounterReportInput);
+    var output = iucdsReportTransformer.transform(encounterReportInput);
     System.out.println(EncounterReportController.prettyPrint(output));
 
     URL resource = getClass().getResource("/iucds_empty_report.xml");
@@ -64,7 +65,7 @@ public class IUCDSReportTransformerTest {
         .consent(List.of(Stub.consent()))
         .build();
 
-    ClinicalDocumentDocument1 output = iucdsReportTransformer.transform(encounterReportInput);
+    var output = iucdsReportTransformer.transform(encounterReportInput);
     System.out.println(EncounterReportController.prettyPrint(output));
 
     URL resource = getClass().getResource("/iucds_basic_report.xml");

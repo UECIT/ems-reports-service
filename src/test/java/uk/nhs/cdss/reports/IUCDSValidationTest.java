@@ -6,7 +6,7 @@ import org.apache.xmlbeans.XmlException;
 import org.junit.Test;
 import uk.nhs.cdss.reports.transform.TransformationException;
 import uk.nhs.cdss.reports.transform.XMLValidator;
-import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
+import uk.nhs.itk.envelope.DistributionEnvelopeDocument;
 
 public class IUCDSValidationTest {
 
@@ -14,7 +14,7 @@ public class IUCDSValidationTest {
   public void iucds_basic_validates() throws IOException, XmlException, TransformationException {
 
     URL resource = getClass().getResource("/iucds_basic_report.xml");
-    var iucdsReport = ClinicalDocumentDocument1.Factory.parse(resource);
+    var iucdsReport = DistributionEnvelopeDocument.Factory.parse(resource);
     XMLValidator.validate(iucdsReport);
   }
 }

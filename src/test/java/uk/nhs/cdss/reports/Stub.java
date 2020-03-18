@@ -366,7 +366,7 @@ public class Stub {
         identifiers());
   }
 
-  private static Identifiers identifiers() {
+  public static Identifiers identifiers() {
     return Identifiers.builder()
         .senderIdentity("1100000000")
         .senderOdsOrganisation("8HW00")
