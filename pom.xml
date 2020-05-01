@@ -18,7 +18,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <fhir.version>3.0.0</fhir.version>
     <drools.version>7.28.0.Final</drools.version>
-    <hapi-fhir.version>3.7.0</hapi-fhir.version>
+    <hapi-fhir.version>4.2.0</hapi-fhir.version>
     <iucds-schema.version>3.0.RC1.2</iucds-schema.version>
     <ecds-schema.version>6.2.2</ecds-schema.version>
     <fhir-extensions.version>0.0.1</fhir-extensions.version>
